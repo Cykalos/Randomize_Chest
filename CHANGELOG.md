@@ -1,5 +1,13 @@
 # Changelog
 
+## [Non publié / Unreleased]
+
+### 🇫🇷 Ajouté
+- Fichier `LICENSE` (GNU GPL v3.0), également inclus dans le `.jar`.
+
+### 🇬🇧 Added
+- `LICENSE` file (GNU GPL v3.0), also bundled in the `.jar`.
+
 ## [1.0.0] — 2026-10-19
 
 ### 🇫🇷 Ajouté

@@ -94,7 +94,7 @@ gradle build
 
 ### Licence
 
-GPL-3.0.
+Ce projet est distribué sous licence [GNU GPL v3.0](LICENSE) : vous pouvez l'utiliser, le modifier et le redistribuer, à condition de conserver la même licence et de mentionner l'origine du code.
 
 ---
 
@@ -172,4 +172,4 @@ gradle build
 
 ### License
 
-GPL-3.0.
+This project is released under the [GNU GPL v3.0](LICENSE): you may use, modify and redistribute it, as long as you keep the same license and credit the original code.

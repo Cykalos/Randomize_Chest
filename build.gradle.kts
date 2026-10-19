@@ -36,5 +36,6 @@ tasks {
 
     jar {
         archiveFileName.set("Randomize_Chest-${project.version}.jar")
+        from("LICENSE")
     }
 }
