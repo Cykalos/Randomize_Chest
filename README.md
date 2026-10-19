@@ -86,6 +86,12 @@ gradle build
 # build/libs/Randomize_Chest-<version>.jar
 ```
 
+### Publier une version
+
+1. Changez `version` dans `build.gradle.kts`.
+2. Ajoutez une section `## [x.y.z]` correspondante dans `CHANGELOG.md`.
+3. Poussez sur `main` : l'action GitHub compile le plugin, crée le tag `vx.y.z` et publie la release avec le `.jar` et les notes du changelog.
+
 ### Licence
 
 GPL-3.0.
@@ -157,6 +163,12 @@ The plugin places an `ItemDisplay` carrying the `item-model` model on each loot 
 gradle build
 # build/libs/Randomize_Chest-<version>.jar
 ```
+
+### Publishing a version
+
+1. Change `version` in `build.gradle.kts`.
+2. Add a matching `## [x.y.z]` section to `CHANGELOG.md`.
+3. Push to `main`: the GitHub Action builds the plugin, creates the `vx.y.z` tag and publishes the release with the `.jar` and the changelog notes.
 
 ### License
 
