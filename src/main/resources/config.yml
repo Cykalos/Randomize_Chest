@@ -1,0 +1,68 @@
+# ============================================================
+#  Ramdomize_Chest — configuration
+#  Chaque joueur obtient son propre butin dans les conteneurs
+#  générés naturellement (structures, donjons, villages...).
+#  Les conteneurs posés par les joueurs ne sont jamais concernés.
+# ============================================================
+
+worlds:
+  # blacklist = actif partout SAUF dans la liste
+  # whitelist = actif UNIQUEMENT dans la liste
+  mode: blacklist
+  list: []
+
+containers:
+  # Types de blocs pris en charge (ils doivent avoir une table de loot à la génération)
+  blocks:
+    - CHEST
+    - TRAPPED_CHEST
+    - BARREL
+  # Wagonnets à coffre des mineshafts
+  minecarts: true
+
+loot:
+  # random     : tirage aléatoire différent pour chaque joueur (comme Lootr)
+  # per-player : tirage fixe par joueur (même résultat s'il est réinitialisé)
+  # shared     : même contenu pour tout le monde, mais chacun a sa copie
+  seed-mode: random
+  # Nombre d'heures avant que le butin d'un joueur se régénère (0 = jamais)
+  refill-hours: 0
+  # Titre de l'inventaire (MiniMessage)
+  inventory-title: "<dark_green>Butin personnel"
+
+protection:
+  # Empêche de casser un conteneur à butin (sauf accroupi avec ramdomizechest.break)
+  break: true
+  # Empêche les explosions de détruire les conteneurs à butin
+  explosions: true
+  # Empêche les entonnoirs d'insérer/retirer des objets
+  hoppers: true
+
+# Habillage visuel : un ItemDisplay avec votre modèle (resource pack) est posé
+# sur chaque coffre à butin pour le différencier. Activez-le quand la texture est prête,
+# puis faites /rchest visuals refresh.
+visual:
+  enabled: false
+  # Clé du modèle d'item (composant item_model) définie dans le resource pack
+  item-model: "ramdomize_chest:loot_chest"
+  # NONE, FIXED, HEAD, GUI, GROUND...
+  transform: NONE
+  scale: 1.0
+  # Décalage vertical depuis le bas du bloc (0.5 = centre)
+  y-offset: 0.5
+
+messages:
+  prefix: "<gray>[<gold>Butin</gold>]</gray> "
+  no-permission: "<red>Vous n'avez pas la permission."
+  break-protected: "<red>Ce coffre contient un butin personnel : il ne peut pas être cassé."
+  break-hint: "<gray>(Accroupissez-vous pour le casser si vous en avez la permission.)"
+  reloaded: "<green>Configuration rechargée."
+  not-a-loot-container: "<red>Visez un conteneur à butin personnel."
+  info: "<yellow>ID : <white><id></white>\n<yellow>Table : <white><table></white>\n<yellow>Joueurs ayant un butin : <white><count></white>"
+  reset-all: "<green>Butin réinitialisé pour tous les joueurs."
+  reset-player: "<green>Butin réinitialisé pour <white><player></white>."
+  unknown-player: "<red>Joueur inconnu : <white><player></white>"
+  scan-done: "<green><count> conteneur(s) converti(s) dans les chunks chargés."
+  visuals-refreshed: "<green><count> habillage(s) visuel(s) recréé(s)."
+  visuals-disabled: "<red>L'habillage visuel est désactivé dans la configuration."
+  usage: "<gray>/rchest <white>reload | info | reset [joueur] | scan | visuals refresh"
