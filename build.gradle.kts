@@ -35,6 +35,6 @@ tasks {
     }
 
     jar {
-        archiveFileName.set("Ramdomize_Chest-${project.version}.jar")
+        archiveFileName.set("Randomize_Chest-${project.version}.jar")
     }
 }

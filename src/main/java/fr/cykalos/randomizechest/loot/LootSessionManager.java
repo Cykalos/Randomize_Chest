@@ -1,7 +1,7 @@
-package fr.cykalos.ramdomizechest.loot;
+package fr.cykalos.randomizechest.loot;
 
-import fr.cykalos.ramdomizechest.RamdomizeChestPlugin;
-import fr.cykalos.ramdomizechest.storage.LootDatabase;
+import fr.cykalos.randomizechest.RandomizeChestPlugin;
+import fr.cykalos.randomizechest.storage.LootDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Lidded;
@@ -25,7 +25,7 @@ public final class LootSessionManager {
     private record ViewKey(String containerId, UUID player) {
     }
 
-    private final RamdomizeChestPlugin plugin;
+    private final RandomizeChestPlugin plugin;
     /** Sauvegardes envoyées à la base mais pas encore écrites : prioritaires sur la lecture. */
     private final Map<ViewKey, LootDatabase.StoredLoot> pending = new ConcurrentHashMap<>();
     /** Chargements en cours (évite un double clic qui ouvrirait deux fois). */
@@ -33,7 +33,7 @@ public final class LootSessionManager {
     /** Nombre de joueurs regardant chaque bloc (pour l'animation du couvercle). */
     private final Map<Location, Integer> lidViewers = new HashMap<>();
 
-    public LootSessionManager(RamdomizeChestPlugin plugin) {
+    public LootSessionManager(RandomizeChestPlugin plugin) {
         this.plugin = plugin;
     }
 

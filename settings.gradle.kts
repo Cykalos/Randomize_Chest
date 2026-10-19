@@ -1,1 +1,1 @@
-rootProject.name = "Ramdomize_Chest"
+rootProject.name = "Randomize_Chest"

@@ -1,4 +1,4 @@
-package fr.cykalos.ramdomizechest;
+package fr.cykalos.randomizechest;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.Plugin;

@@ -1,8 +1,8 @@
-package fr.cykalos.ramdomizechest.listener;
+package fr.cykalos.randomizechest.listener;
 
-import fr.cykalos.ramdomizechest.RamdomizeChestPlugin;
-import fr.cykalos.ramdomizechest.loot.LootData;
-import fr.cykalos.ramdomizechest.loot.LootInventoryHolder;
+import fr.cykalos.randomizechest.RandomizeChestPlugin;
+import fr.cykalos.randomizechest.loot.LootData;
+import fr.cykalos.randomizechest.loot.LootInventoryHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
@@ -26,11 +26,11 @@ import org.bukkit.inventory.EquipmentSlot;
 /** Conversion des conteneurs naturels et ouverture des inventaires personnels. */
 public final class LootListener implements Listener {
 
-    private static final String PERM_USE = "ramdomizechest.use";
+    private static final String PERM_USE = "randomizechest.use";
 
-    private final RamdomizeChestPlugin plugin;
+    private final RandomizeChestPlugin plugin;
 
-    public LootListener(RamdomizeChestPlugin plugin) {
+    public LootListener(RandomizeChestPlugin plugin) {
         this.plugin = plugin;
     }
 

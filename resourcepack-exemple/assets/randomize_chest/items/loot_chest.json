@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "ramdomize_chest:item/loot_chest"
+    "model": "randomize_chest:item/loot_chest"
   }
 }

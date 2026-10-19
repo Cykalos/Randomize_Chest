@@ -1,5 +1,5 @@
 # ============================================================
-#  Ramdomize_Chest — configuration
+#  Randomize_Chest — configuration
 #  Chaque joueur obtient son propre butin dans les conteneurs
 #  générés naturellement (structures, donjons, villages...).
 #  Les conteneurs posés par les joueurs ne sont jamais concernés.
@@ -31,7 +31,7 @@ loot:
   inventory-title: "<dark_green>Butin personnel"
 
 protection:
-  # Empêche de casser un conteneur à butin (sauf accroupi avec ramdomizechest.break)
+  # Empêche de casser un conteneur à butin (sauf accroupi avec randomizechest.break)
   break: true
   # Empêche les explosions de détruire les conteneurs à butin
   explosions: true
@@ -44,7 +44,7 @@ protection:
 visual:
   enabled: false
   # Clé du modèle d'item (composant item_model) définie dans le resource pack
-  item-model: "ramdomize_chest:loot_chest"
+  item-model: "randomize_chest:loot_chest"
   # NONE, FIXED, HEAD, GUI, GROUND...
   transform: NONE
   scale: 1.0

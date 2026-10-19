@@ -1,8 +1,8 @@
-package fr.cykalos.ramdomizechest.loot;
+package fr.cykalos.randomizechest.loot;
 
-import fr.cykalos.ramdomizechest.Keys;
-import fr.cykalos.ramdomizechest.RamdomizeChestPlugin;
-import fr.cykalos.ramdomizechest.PluginSettings;
+import fr.cykalos.randomizechest.Keys;
+import fr.cykalos.randomizechest.RandomizeChestPlugin;
+import fr.cykalos.randomizechest.PluginSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -42,10 +42,10 @@ import java.util.logging.Level;
  */
 public final class LootContainerService {
 
-    private final RamdomizeChestPlugin plugin;
+    private final RandomizeChestPlugin plugin;
     private final Keys keys;
 
-    public LootContainerService(RamdomizeChestPlugin plugin) {
+    public LootContainerService(RandomizeChestPlugin plugin) {
         this.plugin = plugin;
         this.keys = plugin.keys();
     }

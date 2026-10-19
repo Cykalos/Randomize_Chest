@@ -1,19 +1,19 @@
-package fr.cykalos.ramdomizechest;
+package fr.cykalos.randomizechest;
 
-import fr.cykalos.ramdomizechest.command.LootCommand;
-import fr.cykalos.ramdomizechest.listener.LootListener;
-import fr.cykalos.ramdomizechest.listener.ProtectionListener;
-import fr.cykalos.ramdomizechest.loot.LootContainerService;
-import fr.cykalos.ramdomizechest.loot.LootSessionManager;
-import fr.cykalos.ramdomizechest.storage.LootDatabase;
-import fr.cykalos.ramdomizechest.visual.VisualManager;
+import fr.cykalos.randomizechest.command.LootCommand;
+import fr.cykalos.randomizechest.listener.LootListener;
+import fr.cykalos.randomizechest.listener.ProtectionListener;
+import fr.cykalos.randomizechest.loot.LootContainerService;
+import fr.cykalos.randomizechest.loot.LootSessionManager;
+import fr.cykalos.randomizechest.storage.LootDatabase;
+import fr.cykalos.randomizechest.visual.VisualManager;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.logging.Level;
 
-public final class RamdomizeChestPlugin extends JavaPlugin {
+public final class RandomizeChestPlugin extends JavaPlugin {
 
     private volatile PluginSettings settings;
     private Keys keys;
@@ -44,7 +44,7 @@ public final class RamdomizeChestPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new LootListener(this), this);
         getServer().getPluginManager().registerEvents(new ProtectionListener(this), this);
 
-        PluginCommand command = getCommand("ramdomizechest");
+        PluginCommand command = getCommand("randomizechest");
         if (command != null) {
             LootCommand executor = new LootCommand(this);
             command.setExecutor(executor);
@@ -53,7 +53,7 @@ public final class RamdomizeChestPlugin extends JavaPlugin {
 
         // Chunks déjà chargés au démarrage (ex. spawn)
         int converted = lootService.scanLoaded();
-        getLogger().info("Ramdomize_Chest activé — " + converted + " conteneur(s) converti(s) au démarrage.");
+        getLogger().info("Randomize_Chest activé — " + converted + " conteneur(s) converti(s) au démarrage.");
     }
 
     @Override

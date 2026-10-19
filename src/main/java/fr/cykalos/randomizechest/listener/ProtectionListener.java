@@ -1,7 +1,7 @@
-package fr.cykalos.ramdomizechest.listener;
+package fr.cykalos.randomizechest.listener;
 
-import fr.cykalos.ramdomizechest.RamdomizeChestPlugin;
-import fr.cykalos.ramdomizechest.loot.LootData;
+import fr.cykalos.randomizechest.RandomizeChestPlugin;
+import fr.cykalos.randomizechest.loot.LootData;
 import org.bukkit.block.Block;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.TileState;
@@ -24,11 +24,11 @@ import java.util.List;
 /** Protection des conteneurs à butin (casse, explosions, entonnoirs). */
 public final class ProtectionListener implements Listener {
 
-    private static final String PERM_BREAK = "ramdomizechest.break";
+    private static final String PERM_BREAK = "randomizechest.break";
 
-    private final RamdomizeChestPlugin plugin;
+    private final RandomizeChestPlugin plugin;
 
-    public ProtectionListener(RamdomizeChestPlugin plugin) {
+    public ProtectionListener(RandomizeChestPlugin plugin) {
         this.plugin = plugin;
     }
 

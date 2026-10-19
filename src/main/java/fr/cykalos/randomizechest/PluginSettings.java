@@ -1,4 +1,4 @@
-package fr.cykalos.ramdomizechest;
+package fr.cykalos.randomizechest;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -92,7 +92,7 @@ public record PluginSettings(
                 cfg.getBoolean("protection.explosions", true),
                 cfg.getBoolean("protection.hoppers", true),
                 cfg.getBoolean("visual.enabled", false),
-                cfg.getString("visual.item-model", "ramdomize_chest:loot_chest"),
+                cfg.getString("visual.item-model", "randomize_chest:loot_chest"),
                 transform,
                 (float) cfg.getDouble("visual.scale", 1.0),
                 cfg.getDouble("visual.y-offset", 0.5),

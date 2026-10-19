@@ -1,4 +1,4 @@
-# Ramdomize_Chest
+# Randomize_Chest
 
 🇫🇷 [Français](#français) · 🇬🇧 [English](#english)
 
@@ -36,7 +36,7 @@ SQLite est téléchargé automatiquement par Paper au premier démarrage (`libra
 
 1. Téléchargez le `.jar` depuis les [Releases](../../releases) (ou l'onglet *Actions*).
 2. Placez-le dans le dossier `plugins/` et redémarrez le serveur.
-3. Ajustez `plugins/Ramdomize_Chest/config.yml` puis faites `/rchest reload`.
+3. Ajustez `plugins/Randomize_Chest/config.yml` puis faites `/rchest reload`.
 
 > Les coffres déjà ouverts avant l'installation du plugin ont perdu leur table de loot :
 > ils restent des coffres normaux. Les nouveaux chunks et les coffres jamais ouverts sont convertis.
@@ -51,13 +51,13 @@ SQLite est téléchargé automatiquement par Paper au premier démarrage (`libra
 | `/rchest scan` | Convertit les conteneurs des chunks chargés |
 | `/rchest visuals refresh` | Recrée les habillages visuels dans les chunks chargés |
 
-Alias : `/ramdomizechest`, `/rchest`.
+Alias : `/randomizechest`, `/rchest`.
 
 | Permission | Défaut | Rôle |
 |---|---|---|
-| `ramdomizechest.use` | tous | Ouvrir les coffres à butin |
-| `ramdomizechest.break` | op | Casser un coffre à butin en étant accroupi |
-| `ramdomizechest.admin` | op | Commandes d'administration |
+| `randomizechest.use` | tous | Ouvrir les coffres à butin |
+| `randomizechest.break` | op | Casser un coffre à butin en étant accroupi |
+| `randomizechest.admin` | op | Commandes d'administration |
 
 ### Configuration (extrait)
 
@@ -71,7 +71,7 @@ protection:
   hoppers: true
 visual:
   enabled: false
-  item-model: "ramdomize_chest:loot_chest"
+  item-model: "randomize_chest:loot_chest"
 ```
 
 ### Texture personnalisée
@@ -83,7 +83,7 @@ Le plugin pose un `ItemDisplay` portant le modèle `item-model` sur chaque coffr
 
 ```bash
 gradle build
-# build/libs/Ramdomize_Chest-<version>.jar
+# build/libs/Randomize_Chest-<version>.jar
 ```
 
 ### Licence
@@ -123,7 +123,7 @@ SQLite is downloaded automatically by Paper on first start (`libraries` in `plug
 
 1. Download the `.jar` from [Releases](../../releases) (or the *Actions* tab).
 2. Drop it into `plugins/` and restart the server.
-3. Adjust `plugins/Ramdomize_Chest/config.yml` then run `/rchest reload`.
+3. Adjust `plugins/Randomize_Chest/config.yml` then run `/rchest reload`.
 
 > Chests opened before the plugin was installed have already lost their loot table:
 > they stay regular chests. New chunks and never-opened chests are converted.
@@ -138,13 +138,13 @@ SQLite is downloaded automatically by Paper on first start (`libraries` in `plug
 | `/rchest scan` | Convert containers in loaded chunks |
 | `/rchest visuals refresh` | Recreate visual skins in loaded chunks |
 
-Aliases: `/ramdomizechest`, `/rchest`.
+Aliases: `/randomizechest`, `/rchest`.
 
 | Permission | Default | Purpose |
 |---|---|---|
-| `ramdomizechest.use` | everyone | Open loot chests |
-| `ramdomizechest.break` | op | Break a loot chest while sneaking |
-| `ramdomizechest.admin` | op | Admin commands |
+| `randomizechest.use` | everyone | Open loot chests |
+| `randomizechest.break` | op | Break a loot chest while sneaking |
+| `randomizechest.admin` | op | Admin commands |
 
 ### Custom texture
 
@@ -155,7 +155,7 @@ The plugin places an `ItemDisplay` carrying the `item-model` model on each loot 
 
 ```bash
 gradle build
-# build/libs/Ramdomize_Chest-<version>.jar
+# build/libs/Randomize_Chest-<version>.jar
 ```
 
 ### License

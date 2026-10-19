@@ -1,8 +1,8 @@
-package fr.cykalos.ramdomizechest.visual;
+package fr.cykalos.randomizechest.visual;
 
-import fr.cykalos.ramdomizechest.RamdomizeChestPlugin;
-import fr.cykalos.ramdomizechest.PluginSettings;
-import fr.cykalos.ramdomizechest.loot.LootData;
+import fr.cykalos.randomizechest.RandomizeChestPlugin;
+import fr.cykalos.randomizechest.PluginSettings;
+import fr.cykalos.randomizechest.loot.LootData;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -27,9 +27,9 @@ import org.joml.Vector3f;
  */
 public final class VisualManager {
 
-    private final RamdomizeChestPlugin plugin;
+    private final RandomizeChestPlugin plugin;
 
-    public VisualManager(RamdomizeChestPlugin plugin) {
+    public VisualManager(RandomizeChestPlugin plugin) {
         this.plugin = plugin;
     }
 

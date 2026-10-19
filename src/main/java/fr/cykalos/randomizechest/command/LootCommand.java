@@ -1,8 +1,8 @@
-package fr.cykalos.ramdomizechest.command;
+package fr.cykalos.randomizechest.command;
 
-import fr.cykalos.ramdomizechest.RamdomizeChestPlugin;
-import fr.cykalos.ramdomizechest.PluginSettings;
-import fr.cykalos.ramdomizechest.loot.LootData;
+import fr.cykalos.randomizechest.RandomizeChestPlugin;
+import fr.cykalos.randomizechest.PluginSettings;
+import fr.cykalos.randomizechest.loot.LootData;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
@@ -22,12 +22,12 @@ import java.util.UUID;
 /** /rchest reload | info | reset [joueur] | scan | visuals refresh */
 public final class LootCommand implements TabExecutor {
 
-    private static final String PERM_ADMIN = "ramdomizechest.admin";
+    private static final String PERM_ADMIN = "randomizechest.admin";
     private static final List<String> SUBS = List.of("reload", "info", "reset", "scan", "visuals");
 
-    private final RamdomizeChestPlugin plugin;
+    private final RandomizeChestPlugin plugin;
 
-    public LootCommand(RamdomizeChestPlugin plugin) {
+    public LootCommand(RandomizeChestPlugin plugin) {
         this.plugin = plugin;
     }
 

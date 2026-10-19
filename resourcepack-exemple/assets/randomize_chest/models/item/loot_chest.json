@@ -1,7 +1,7 @@
 {
   "textures": {
-    "0": "ramdomize_chest:item/loot_chest",
-    "particle": "ramdomize_chest:item/loot_chest"
+    "0": "randomize_chest:item/loot_chest",
+    "particle": "randomize_chest:item/loot_chest"
   },
   "elements": [
     {

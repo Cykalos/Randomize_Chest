@@ -1,6 +1,6 @@
-name: Ramdomize_Chest
+name: Randomize_Chest
 version: '${version}'
-main: fr.cykalos.ramdomizechest.RamdomizeChestPlugin
+main: fr.cykalos.randomizechest.RandomizeChestPlugin
 api-version: '26.1'
 description: Butin personnel par joueur dans les coffres générés naturellement (style Lootr).
 authors: [Cykalos]
@@ -11,20 +11,20 @@ libraries:
   - org.xerial:sqlite-jdbc:3.49.1.0
 
 commands:
-  ramdomizechest:
+  randomizechest:
     description: Administration des coffres à butin personnel
     usage: /rchest <reload|info|reset|scan|visuals>
     aliases: [rchest]
 
 permissions:
-  ramdomizechest.use:
+  randomizechest.use:
     description: Ouvrir les coffres à butin personnel
     default: true
-  ramdomizechest.break:
+  randomizechest.break:
     description: Casser un coffre à butin (en étant accroupi)
     default: op
-  ramdomizechest.admin:
+  randomizechest.admin:
     description: Commandes d'administration
     default: op
     children:
-      ramdomizechest.break: true
+      randomizechest.break: true

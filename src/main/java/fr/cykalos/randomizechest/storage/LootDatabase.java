@@ -1,4 +1,4 @@
-package fr.cykalos.ramdomizechest.storage;
+package fr.cykalos.randomizechest.storage;
 
 import java.io.File;
 import java.sql.Connection;
@@ -29,7 +29,7 @@ public final class LootDatabase {
 
     private final Logger logger;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "Ramdomize_Chest-DB");
+        Thread t = new Thread(r, "Randomize_Chest-DB");
         t.setDaemon(true);
         return t;
     });

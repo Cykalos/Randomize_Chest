@@ -1,4 +1,4 @@
-package fr.cykalos.ramdomizechest.loot;
+package fr.cykalos.randomizechest.loot;
 
 import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
