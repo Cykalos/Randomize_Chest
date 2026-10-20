@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "fr.cykalos"
-version = "1.1.0"
+version = "1.2.0"
 
 // Paper 26.1+ tourne sur Java 25
 java {
@@ -37,5 +37,10 @@ tasks {
     jar {
         archiveFileName.set("Randomize_Chest-${project.version}.jar")
         from("LICENSE")
+        // Pack de ressources embarqué, extrait au démarrage dans plugins/Randomize_Chest/resourcepack/
+        from("resourcepack") {
+            into("resourcepack")
+            exclude("LISEZMOI.md")
+        }
     }
 }

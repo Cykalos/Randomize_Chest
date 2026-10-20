@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.2.0] — 2026-10-20
+
+### 🇫🇷 Ajouté
+- Pack de ressources inclus dans le `.jar`, extrait dans `plugins/Randomize_Chest/resourcepack/` sans écraser les fichiers existants.
+- Serveur web intégré (`resource-pack.mode: builtin`) qui envoie le pack aux joueurs à la connexion, en plus des autres packs du serveur.
+- Mode `disabled` pour les serveurs qui fusionnent leurs packs (RSPM...) ; le zip `Randomize_Chest-pack.zip` reste généré.
+- Options `port`, `bind`, `public-host`, `public-port`, `required` et `prompt`.
+- Commande `/rchest pack [resend]` (lien, SHA-1, taille, renvoi).
+- Avertissement en console quand un joueur n'arrive pas à télécharger le pack.
+
+### 🇫🇷 Modifié
+- `/rchest reload` reconstruit le pack et le renvoie aux joueurs s'il a changé.
+- Le dossier `resourcepack-exemple/` du dépôt devient `resourcepack/`, avec un `pack.mcmeta` pour 26.1+.
+
+### 🇬🇧 Added
+- Resource pack bundled in the `.jar`, extracted to `plugins/Randomize_Chest/resourcepack/` without overwriting existing files.
+- Built-in web server (`resource-pack.mode: builtin`) that sends the pack to players on join, on top of the server's other packs.
+- `disabled` mode for servers that merge their packs (RSPM...); the `Randomize_Chest-pack.zip` file is still generated.
+- `port`, `bind`, `public-host`, `public-port`, `required` and `prompt` options.
+- `/rchest pack [resend]` command (link, SHA-1, size, resend).
+- Console warning when a player fails to download the pack.
+
+### 🇬🇧 Changed
+- `/rchest reload` rebuilds the pack and sends it again to players if it changed.
+- The repository's `resourcepack-exemple/` folder becomes `resourcepack/`, with a `pack.mcmeta` for 26.1+.
+
 ## [1.1.0] — 2026-10-20
 
 ### 🇫🇷 Ajouté

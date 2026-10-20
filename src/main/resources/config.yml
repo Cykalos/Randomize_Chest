@@ -65,6 +65,30 @@ visual:
   # (face avant du modèle = face « north » dans Blockbench)
   yaw-offset: 0
 
+# Pack de ressources des coffres à butin. Il est inclus dans le plugin et extrait dans
+# plugins/Randomize_Chest/resourcepack/ : remplacez-y les textures, puis /rchest reload.
+# Le pack compressé est aussi écrit dans plugins/Randomize_Chest/Randomize_Chest-pack.zip.
+# Il n'est envoyé que si visual.enabled vaut true.
+resource-pack:
+  # builtin  : le plugin héberge le pack lui-même et l'envoie aux joueurs à la connexion,
+  #            en plus des autres packs du serveur (il ne les remplace pas).
+  # disabled : rien n'est envoyé. À utiliser si vous fusionnez vos packs avec un autre
+  #            plugin (RSPM...) : donnez-lui le dossier ou le zip ci-dessus.
+  mode: builtin
+  # Port TCP du petit serveur web intégré. Il doit être ouvert dans le pare-feu / panel.
+  port: 8164
+  # Adresse d'écoute (0.0.0.0 = toutes les interfaces)
+  bind: "0.0.0.0"
+  # Adresse publique utilisée dans le lien envoyé aux joueurs.
+  # Vide = l'adresse que chaque joueur a utilisée pour se connecter (domaine ou IP).
+  public-host: ""
+  # Port public si différent du port d'écoute (redirection, proxy). 0 = même que port.
+  public-port: 0
+  # true = les joueurs qui refusent le pack sont déconnectés
+  required: false
+  # Message affiché avec la demande de téléchargement (MiniMessage)
+  prompt: "<gold>Textures des coffres à butin"
+
 messages:
   prefix: "<gray>[<gold>Butin</gold>]</gray> "
   no-permission: "<red>Vous n'avez pas la permission."
@@ -79,4 +103,7 @@ messages:
   scan-done: "<green><count> conteneur(s) converti(s) dans les chunks chargés."
   visuals-refreshed: "<green><count> habillage(s) visuel(s) recréé(s)."
   visuals-disabled: "<red>L'habillage visuel est désactivé dans la configuration."
-  usage: "<gray>/rchest <white>reload | info | reset [joueur] | scan | visuals refresh"
+  pack-info: "<yellow>Mode : <white><mode></white>\n<yellow>Lien : <white><url></white>\n<yellow>SHA-1 : <white><sha1></white>\n<yellow>Taille : <white><size> octets</white>\n<yellow>Dossier : <white><folder></white>"
+  pack-sent: "<green>Pack de ressources renvoyé à <white><count></white> joueur(s)."
+  pack-inactive: "<red>L'envoi du pack est inactif (resource-pack.mode, visual.enabled ou port indisponible)."
+  usage: "<gray>/rchest <white>reload | info | reset [joueur] | scan | visuals refresh | pack [resend]"

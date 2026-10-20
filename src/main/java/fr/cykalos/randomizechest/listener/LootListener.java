@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
@@ -33,6 +34,7 @@ public final class LootListener implements Listener {
     private static final String PERM_USE = "randomizechest.use";
 
     private final RandomizeChestPlugin plugin;
+    private long lastPackWarning;
 
     public LootListener(RandomizeChestPlugin plugin) {
         this.plugin = plugin;
@@ -67,6 +69,25 @@ public final class LootListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         plugin.visuals().loadPlayer(event.getPlayer());
+        plugin.pack().send(event.getPlayer());
+    }
+
+    /** Aide au diagnostic : un échec de téléchargement vient presque toujours d'un port fermé. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPackStatus(PlayerResourcePackStatusEvent event) {
+        if (!plugin.pack().isOurPack(event.getID())) return;
+        switch (event.getStatus()) {
+            case FAILED_DOWNLOAD, INVALID_URL, FAILED_RELOAD -> {
+                long now = System.currentTimeMillis();
+                if (now - lastPackWarning < 60_000L) return;
+                lastPackWarning = now;
+                plugin.getLogger().warning("Le pack de ressources n'a pas pu être chargé par " + event.getPlayer().getName()
+                        + " (" + event.getStatus() + "). Lien : " + plugin.pack().url(event.getPlayer())
+                        + " — vérifiez que le port resource-pack.port est ouvert, ou renseignez resource-pack.public-host.");
+            }
+            default -> {
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

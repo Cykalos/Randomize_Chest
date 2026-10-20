@@ -39,10 +39,24 @@ public record PluginSettings(
         float visualScale,
         double visualYOffset,
         float visualYawOffset,
+        PackMode packMode,
+        String packBind,
+        int packPort,
+        String packPublicHost,
+        int packPublicPort,
+        boolean packRequired,
+        String packPromptRaw,
         Map<String, String> messages
 ) {
 
     public enum SeedMode { RANDOM, PER_PLAYER, SHARED }
+
+    /** BUILTIN : le plugin héberge et envoie le pack. DISABLED : rien n'est envoyé (fusion RSPM...). */
+    public enum PackMode { BUILTIN, DISABLED }
+
+    public Component packPrompt() {
+        return MM.deserialize(packPromptRaw);
+    }
 
     /** Modèles affichés selon que le joueur a déjà ouvert le conteneur ou non. */
     public record VisualModels(NamespacedKey unopened, NamespacedKey opened) {
@@ -101,6 +115,16 @@ public record PluginSettings(
             }
         }
 
+        PackMode packMode;
+        try {
+            packMode = PackMode.valueOf(cfg.getString("resource-pack.mode", "builtin").toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            log.warning("resource-pack.mode invalide (builtin ou disabled), utilisation de 'builtin'.");
+            packMode = PackMode.BUILTIN;
+        }
+        int packPort = cfg.getInt("resource-pack.port", 8164);
+        int publicPort = cfg.getInt("resource-pack.public-port", 0);
+
         Map<String, String> messages = new HashMap<>();
         ConfigurationSection sec = cfg.getConfigurationSection("messages");
         if (sec != null) {
@@ -125,6 +149,13 @@ public record PluginSettings(
                 (float) cfg.getDouble("visual.scale", 1.0),
                 cfg.getDouble("visual.y-offset", 0.5),
                 (float) cfg.getDouble("visual.yaw-offset", 0.0),
+                packMode,
+                cfg.getString("resource-pack.bind", "0.0.0.0"),
+                packPort,
+                cfg.getString("resource-pack.public-host", "").trim(),
+                publicPort > 0 ? publicPort : packPort,
+                cfg.getBoolean("resource-pack.required", false),
+                cfg.getString("resource-pack.prompt", "<gold>Textures des coffres à butin"),
                 messages
         );
     }

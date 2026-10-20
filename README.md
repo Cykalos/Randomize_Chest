@@ -50,6 +50,7 @@ SQLite est téléchargé automatiquement par Paper au premier démarrage (`libra
 | `/rchest reset [joueur]` | Réinitialise le butin du conteneur visé (tous ou un joueur) |
 | `/rchest scan` | Convertit les conteneurs des chunks chargés |
 | `/rchest visuals refresh` | Recrée les habillages visuels dans les chunks chargés |
+| `/rchest pack [resend]` | Infos sur le pack de ressources / le renvoyer à tous |
 
 Alias : `/randomizechest`, `/rchest`.
 
@@ -92,8 +93,26 @@ voit `opened-item-model`. Deux joueurs devant le même coffre peuvent donc voir 
 - Les tonneaux sont gérés aussi, avec leurs propres modèles (`per-block`).
 - Quand l'habillage est activé, l'animation vanilla du couvercle est désactivée.
 
-Un exemple de resource pack complet (6 modèles, textures de test) se trouve dans
-[`resourcepack-exemple/`](resourcepack-exemple/). Activez ensuite `visual.enabled: true` et faites `/rchest reload`.
+### Pack de ressources inclus
+
+Le pack (6 modèles, textures de test) est **inclus dans le `.jar`** et extrait au premier démarrage
+dans `plugins/Randomize_Chest/resourcepack/`. Remplacez-y les textures par les vôtres puis faites
+`/rchest reload` : le pack est reconstruit et renvoyé aux joueurs. Les fichiers déjà présents ne
+sont jamais écrasés par une mise à jour du plugin. Sources : [`resourcepack/`](resourcepack/).
+
+| `resource-pack.mode` | Fonctionnement |
+|---|---|
+| `builtin` (défaut) | Le plugin héberge le pack avec un petit serveur web intégré et l'envoie à chaque joueur à la connexion, **en plus** des autres packs du serveur (il ne les remplace pas). |
+| `disabled` | Rien n'est envoyé. À utiliser avec un plugin de fusion de packs (RSPM...) : donnez-lui le dossier `resourcepack/` ou le fichier `Randomize_Chest-pack.zip`. |
+
+En mode `builtin` :
+- Le port `resource-pack.port` (8164 par défaut) doit être **ouvert en TCP** dans le pare-feu ou le panel de l'hébergeur.
+- Le lien envoyé utilise l'adresse que le joueur a tapée pour se connecter. Si elle ne convient pas
+  (proxy, redirection), renseignez `resource-pack.public-host` et éventuellement `public-port`.
+- `/rchest pack` affiche le lien, l'empreinte SHA-1 et la taille du pack ; `/rchest pack resend` le renvoie à tous.
+- Le pack n'est envoyé que si `visual.enabled` vaut `true`.
+
+Activez ensuite `visual.enabled: true` et faites `/rchest reload`.
 
 ### Compiler
 
@@ -159,6 +178,7 @@ SQLite is downloaded automatically by Paper on first start (`libraries` in `plug
 | `/rchest reset [player]` | Reset the targeted container's loot (everyone or one player) |
 | `/rchest scan` | Convert containers in loaded chunks |
 | `/rchest visuals refresh` | Recreate visual skins in loaded chunks |
+| `/rchest pack [resend]` | Resource pack info / send it again to everyone |
 
 Aliases: `/randomizechest`, `/rchest`.
 
@@ -181,8 +201,26 @@ Two players in front of the same chest can see two different textures.
 - Barrels are supported too, with their own models (`per-block`).
 - While the visual skin is enabled, the vanilla lid animation is turned off.
 
-A complete resource pack example (6 models, test textures) lives in
-[`resourcepack-exemple/`](resourcepack-exemple/). Then set `visual.enabled: true` and run `/rchest reload`.
+### Bundled resource pack
+
+The pack (6 models, test textures) is **bundled in the `.jar`** and extracted on first start to
+`plugins/Randomize_Chest/resourcepack/`. Replace the textures there with your own, then run
+`/rchest reload`: the pack is rebuilt and sent again to players. Files already present are never
+overwritten by a plugin update. Sources: [`resourcepack/`](resourcepack/).
+
+| `resource-pack.mode` | Behaviour |
+|---|---|
+| `builtin` (default) | The plugin hosts the pack with a small built-in web server and sends it to every player on join, **on top of** the server's other packs (it does not replace them). |
+| `disabled` | Nothing is sent. Use this with a pack-merging plugin (RSPM...): give it the `resourcepack/` folder or the `Randomize_Chest-pack.zip` file. |
+
+In `builtin` mode:
+- The `resource-pack.port` port (8164 by default) must be **open over TCP** in the firewall or the host's panel.
+- The link uses the address the player typed to connect. If that does not work (proxy, port forwarding),
+  set `resource-pack.public-host` and optionally `public-port`.
+- `/rchest pack` shows the link, SHA-1 and size of the pack; `/rchest pack resend` sends it again to everyone.
+- The pack is only sent when `visual.enabled` is `true`.
+
+Then set `visual.enabled: true` and run `/rchest reload`.
 
 ### Building
 

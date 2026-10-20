@@ -5,6 +5,7 @@ import fr.cykalos.randomizechest.listener.LootListener;
 import fr.cykalos.randomizechest.listener.ProtectionListener;
 import fr.cykalos.randomizechest.loot.LootContainerService;
 import fr.cykalos.randomizechest.loot.LootSessionManager;
+import fr.cykalos.randomizechest.pack.ResourcePackService;
 import fr.cykalos.randomizechest.storage.LootDatabase;
 import fr.cykalos.randomizechest.visual.VisualManager;
 import org.bukkit.command.PluginCommand;
@@ -21,6 +22,7 @@ public final class RandomizeChestPlugin extends JavaPlugin {
     private LootContainerService lootService;
     private LootSessionManager sessions;
     private VisualManager visuals;
+    private ResourcePackService pack;
 
     @Override
     public void onEnable() {
@@ -43,6 +45,8 @@ public final class RandomizeChestPlugin extends JavaPlugin {
         lootService = new LootContainerService(this);
         sessions = new LootSessionManager(this);
         visuals = new VisualManager(this);
+        pack = new ResourcePackService(this, getFile());
+        pack.start();
 
         getServer().getPluginManager().registerEvents(new LootListener(this), this);
         getServer().getPluginManager().registerEvents(new ProtectionListener(this), this);
@@ -64,6 +68,7 @@ public final class RandomizeChestPlugin extends JavaPlugin {
         }
         // Rechargement à chaud (/reload, PlugMan) : joueurs déjà connectés
         getServer().getOnlinePlayers().forEach(visuals::loadPlayer);
+        pack.sendAll();
         // Butins régénérés (refill-hours) : retour à l'apparence « non ouvert »
         getServer().getScheduler().runTaskTimer(this, visuals::tickRefill, 20L * 60, 20L * 60);
 
@@ -73,6 +78,7 @@ public final class RandomizeChestPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (sessions != null) sessions.closeAll();
+        if (pack != null) pack.stop();
         if (database != null) database.close();
     }
 
@@ -103,5 +109,9 @@ public final class RandomizeChestPlugin extends JavaPlugin {
 
     public VisualManager visuals() {
         return visuals;
+    }
+
+    public ResourcePackService pack() {
+        return pack;
     }
 }

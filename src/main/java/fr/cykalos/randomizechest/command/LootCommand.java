@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-/** /rchest reload | info | reset [joueur] | scan | visuals refresh */
+/** /rchest reload | info | reset [joueur] | scan | visuals refresh | pack [resend] */
 public final class LootCommand implements TabExecutor {
 
     private static final String PERM_ADMIN = "randomizechest.admin";
-    private static final List<String> SUBS = List.of("reload", "info", "reset", "scan", "visuals");
+    private static final List<String> SUBS = List.of("reload", "info", "reset", "scan", "visuals", "pack");
 
     private final RandomizeChestPlugin plugin;
 
@@ -49,6 +49,7 @@ public final class LootCommand implements TabExecutor {
                 plugin.reloadSettings();
                 // Applique les nouveaux modèles (ou retire les habillages si désactivés)
                 plugin.visuals().refreshLoaded();
+                plugin.pack().reload();
                 sender.sendMessage(plugin.settings().msg("reloaded"));
             }
             case "scan" -> sender.sendMessage(s.msg("scan-done",
@@ -57,6 +58,25 @@ public final class LootCommand implements TabExecutor {
                 if (!s.visualEnabled()) sender.sendMessage(s.msg("visuals-disabled"));
                 int count = plugin.visuals().refreshLoaded();
                 if (s.visualEnabled()) sender.sendMessage(s.msg("visuals-refreshed", "count", String.valueOf(count)));
+            }
+            case "pack" -> {
+                if (args.length >= 2 && args[1].equalsIgnoreCase("resend")) {
+                    if (!plugin.pack().isActive()) {
+                        sender.sendMessage(s.msg("pack-inactive"));
+                        return true;
+                    }
+                    plugin.pack().sendAll();
+                    sender.sendMessage(s.msg("pack-sent", "count", String.valueOf(Bukkit.getOnlinePlayers().size())));
+                    return true;
+                }
+                String url = plugin.pack().url(sender instanceof Player p ? p : null);
+                String sha1 = plugin.pack().sha1();
+                sender.sendMessage(s.msg("pack-info",
+                        "mode", plugin.pack().isActive() ? "builtin" : s.packMode().name().toLowerCase(Locale.ROOT) + " (inactif)",
+                        "url", url == null ? "?" : url,
+                        "sha1", sha1 == null ? "?" : sha1,
+                        "size", String.valueOf(plugin.pack().size()),
+                        "folder", plugin.pack().folder().getPath()));
             }
             case "info" -> {
                 LootData data = target(sender);
@@ -118,6 +138,8 @@ public final class LootCommand implements TabExecutor {
         List<String> out = new ArrayList<>();
         if (args.length == 1) {
             for (String sub : SUBS) if (sub.startsWith(args[0].toLowerCase(Locale.ROOT))) out.add(sub);
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("pack")) {
+            out.add("resend");
         } else if (args.length == 2 && args[0].equalsIgnoreCase("visuals")) {
             out.add("refresh");
         } else if (args.length == 2 && args[0].equalsIgnoreCase("reset")) {
