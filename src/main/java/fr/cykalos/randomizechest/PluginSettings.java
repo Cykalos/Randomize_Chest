@@ -5,11 +5,13 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.ItemDisplay;
 
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,14 +33,24 @@ public record PluginSettings(
         boolean protectExplosions,
         boolean protectHoppers,
         boolean visualEnabled,
-        String visualModel,
+        VisualModels defaultModels,
+        Map<Material, VisualModels> blockModels,
         ItemDisplay.ItemDisplayTransform visualTransform,
         float visualScale,
         double visualYOffset,
+        float visualYawOffset,
         Map<String, String> messages
 ) {
 
     public enum SeedMode { RANDOM, PER_PLAYER, SHARED }
+
+    /** Modèles affichés selon que le joueur a déjà ouvert le conteneur ou non. */
+    public record VisualModels(NamespacedKey unopened, NamespacedKey opened) {
+    }
+
+    public VisualModels modelsFor(Material type) {
+        return blockModels.getOrDefault(type, defaultModels);
+    }
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
@@ -74,6 +86,21 @@ public record PluginSettings(
             transform = ItemDisplay.ItemDisplayTransform.NONE;
         }
 
+        VisualModels defaults = readModels(cfg.getConfigurationSection("visual"),
+                new VisualModels(key("randomize_chest:loot_chest"), key("randomize_chest:loot_chest_opened")), log);
+        Map<Material, VisualModels> blockModels = new EnumMap<>(Material.class);
+        ConfigurationSection perBlock = cfg.getConfigurationSection("visual.per-block");
+        if (perBlock != null) {
+            for (String name : perBlock.getKeys(false)) {
+                Material m = Material.matchMaterial(name);
+                if (m == null) {
+                    log.warning("Type de bloc inconnu dans visual.per-block : " + name);
+                    continue;
+                }
+                blockModels.put(m, readModels(perBlock.getConfigurationSection(name), defaults, log));
+            }
+        }
+
         Map<String, String> messages = new HashMap<>();
         ConfigurationSection sec = cfg.getConfigurationSection("messages");
         if (sec != null) {
@@ -92,12 +119,35 @@ public record PluginSettings(
                 cfg.getBoolean("protection.explosions", true),
                 cfg.getBoolean("protection.hoppers", true),
                 cfg.getBoolean("visual.enabled", false),
-                cfg.getString("visual.item-model", "randomize_chest:loot_chest"),
+                defaults,
+                blockModels,
                 transform,
                 (float) cfg.getDouble("visual.scale", 1.0),
                 cfg.getDouble("visual.y-offset", 0.5),
+                (float) cfg.getDouble("visual.yaw-offset", 0.0),
                 messages
         );
+    }
+
+    private static VisualModels readModels(ConfigurationSection sec, VisualModels fallback, Logger log) {
+        if (sec == null) return fallback;
+        NamespacedKey unopened = parseModel(sec.getString("item-model"), fallback.unopened(), log);
+        NamespacedKey opened = parseModel(sec.getString("opened-item-model"), fallback.opened(), log);
+        return new VisualModels(unopened, opened);
+    }
+
+    private static NamespacedKey parseModel(String raw, NamespacedKey fallback, Logger log) {
+        if (raw == null || raw.isBlank()) return fallback;
+        NamespacedKey k = NamespacedKey.fromString(raw.toLowerCase(Locale.ROOT));
+        if (k == null) {
+            log.warning("Clé de modèle invalide : " + raw);
+            return fallback;
+        }
+        return k;
+    }
+
+    private static NamespacedKey key(String raw) {
+        return NamespacedKey.fromString(raw);
     }
 
     public boolean isWorldEnabled(World world) {

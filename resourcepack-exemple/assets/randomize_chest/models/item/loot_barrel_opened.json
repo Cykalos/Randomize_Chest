@@ -1,0 +1,7 @@
+{
+  "parent": "randomize_chest:item/loot_barrel",
+  "textures": {
+    "0": "randomize_chest:item/loot_barrel_opened",
+    "particle": "randomize_chest:item/loot_barrel_opened"
+  }
+}

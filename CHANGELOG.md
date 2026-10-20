@@ -1,12 +1,34 @@
 # Changelog
 
-## [Non publié / Unreleased]
+## [1.1.0] — 2026-10-20
 
 ### 🇫🇷 Ajouté
+- Apparence par joueur façon Lootr : un modèle « non ouvert » (`item-model`) et un modèle « déjà ouvert » (`opened-item-model`) ; chaque joueur voit celui qui correspond à ce qu'il a fait.
+- Modèles par type de bloc (`visual.per-block`), avec des valeurs par défaut pour les coffres piégés et les tonneaux.
+- Option `visual.yaw-offset` pour corriger l'orientation d'un modèle.
+- Exemple de resource pack complet : 6 modèles (coffre, coffre piégé, tonneau × 2 états) et textures de test.
 - Fichier `LICENSE` (GNU GPL v3.0), également inclus dans le `.jar`.
 
+### 🇫🇷 Modifié
+- Les habillages se recréent automatiquement au chargement des chunks et après `/rchest reload`.
+- Les tonneaux habillés ne sont plus rendus sombres (lumière prise au-dessus du bloc).
+- L'animation vanilla du couvercle est désactivée quand l'habillage est actif.
+- Les nouvelles options sont ajoutées automatiquement à un `config.yml` existant.
+- Les habillages de la version 1.0.0 sont remplacés automatiquement.
+
 ### 🇬🇧 Added
+- Lootr-style per-player look: an "unopened" model (`item-model`) and an "opened" model (`opened-item-model`); each player sees the one matching their own actions.
+- Per-block models (`visual.per-block`), with defaults for trapped chests and barrels.
+- `visual.yaw-offset` option to fix a model's orientation.
+- Complete resource pack example: 6 models (chest, trapped chest, barrel × 2 states) and test textures.
 - `LICENSE` file (GNU GPL v3.0), also bundled in the `.jar`.
+
+### 🇬🇧 Changed
+- Visual skins are recreated automatically when chunks load and after `/rchest reload`.
+- Skinned barrels are no longer rendered dark (light is sampled above the block).
+- The vanilla lid animation is turned off while the visual skin is active.
+- New options are added automatically to an existing `config.yml`.
+- Visual skins from version 1.0.0 are replaced automatically.
 
 ## [1.0.0] — 2026-10-19
 

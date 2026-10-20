@@ -25,6 +25,9 @@ public final class RandomizeChestPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        // Ajoute à une config existante les options apparues dans une nouvelle version
+        getConfig().options().copyDefaults(true);
+        saveConfig();
         settings = PluginSettings.load(getConfig(), getLogger());
         keys = new Keys(this);
 
@@ -53,6 +56,17 @@ public final class RandomizeChestPlugin extends JavaPlugin {
 
         // Chunks déjà chargés au démarrage (ex. spawn)
         int converted = lootService.scanLoaded();
+        visuals.registerLoaded();
+        if (settings.visualEnabled()) {
+            for (org.bukkit.World world : getServer().getWorlds()) {
+                for (org.bukkit.Chunk chunk : world.getLoadedChunks()) visuals.ensureChunk(chunk);
+            }
+        }
+        // Rechargement à chaud (/reload, PlugMan) : joueurs déjà connectés
+        getServer().getOnlinePlayers().forEach(visuals::loadPlayer);
+        // Butins régénérés (refill-hours) : retour à l'apparence « non ouvert »
+        getServer().getScheduler().runTaskTimer(this, visuals::tickRefill, 20L * 60, 20L * 60);
+
         getLogger().info("Randomize_Chest activé — " + converted + " conteneur(s) converti(s) au démarrage.");
     }
 

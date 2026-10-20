@@ -20,7 +20,7 @@ Plusieurs joueurs peuvent ouvrir le même coffre : chacun y trouve un contenu ti
   et sont en plus marqués à la pose).
 - Coffres, coffres piégés, tonneaux et wagonnets à coffre sont pris en charge (configurable).
 - Protection contre la casse, les explosions et les entonnoirs.
-- Habillage visuel optionnel (ItemDisplay + modèle de resource pack) pour reconnaître les coffres à butin.
+- Apparence personnelle façon Lootr : chaque joueur voit le coffre « non ouvert » ou « déjà ouvert » selon ce qu'il a fait, avec vos propres textures.
 
 ### Prérequis
 
@@ -71,13 +71,29 @@ protection:
   hoppers: true
 visual:
   enabled: false
-  item-model: "randomize_chest:loot_chest"
+  item-model: "randomize_chest:loot_chest"               # pas encore ouvert
+  opened-item-model: "randomize_chest:loot_chest_opened" # déjà ouvert
+  per-block:                                             # modèles par type de bloc
+    BARREL:
+      item-model: "randomize_chest:loot_barrel"
+      opened-item-model: "randomize_chest:loot_barrel_opened"
 ```
 
-### Texture personnalisée
+### Textures « non ouvert / déjà ouvert »
 
-Un exemple de resource pack se trouve dans [`resourcepack-exemple/`](resourcepack-exemple/).
-Le plugin pose un `ItemDisplay` portant le modèle `item-model` sur chaque coffre à butin.
+Comme avec Lootr, l'apparence d'un coffre à butin dépend du joueur qui le regarde :
+un joueur qui ne l'a jamais ouvert voit le modèle `item-model`, un joueur qui l'a déjà ouvert
+voit `opened-item-model`. Deux joueurs devant le même coffre peuvent donc voir deux textures différentes.
+
+- Chaque conteneur porte deux `ItemDisplay` superposés ; le plugin montre à chaque joueur le bon
+  grâce à la visibilité d'entités par joueur de Paper (aucun paquet modifié, aucune dépendance).
+- L'état est mis à jour dès l'ouverture, retrouvé à la reconnexion, remis à zéro par `/rchest reset`
+  et par la régénération (`refill-hours`).
+- Les tonneaux sont gérés aussi, avec leurs propres modèles (`per-block`).
+- Quand l'habillage est activé, l'animation vanilla du couvercle est désactivée.
+
+Un exemple de resource pack complet (6 modèles, textures de test) se trouve dans
+[`resourcepack-exemple/`](resourcepack-exemple/). Activez ensuite `visual.enabled: true` et faites `/rchest reload`.
 
 ### Compiler
 
@@ -113,7 +129,7 @@ Several players can open the same chest: each one finds contents rolled just for
 - **Player-placed chests are never affected** (they have no loot table, and are also tagged on placement).
 - Chests, trapped chests, barrels and chest minecarts are supported (configurable).
 - Protection against breaking, explosions and hoppers.
-- Optional visual skin (ItemDisplay + resource pack model) to recognise loot chests.
+- Lootr-style per-player look: each player sees the chest as "unopened" or "already opened" based on their own actions, with your own textures.
 
 ### Requirements
 
@@ -152,10 +168,21 @@ Aliases: `/randomizechest`, `/rchest`.
 | `randomizechest.break` | op | Break a loot chest while sneaking |
 | `randomizechest.admin` | op | Admin commands |
 
-### Custom texture
+### "Unopened / opened" textures
 
-A resource pack example lives in [`resourcepack-exemple/`](resourcepack-exemple/).
-The plugin places an `ItemDisplay` carrying the `item-model` model on each loot chest.
+Like Lootr, a loot chest's look depends on the player looking at it: a player who has never
+opened it sees the `item-model` model, a player who already has sees `opened-item-model`.
+Two players in front of the same chest can see two different textures.
+
+- Each container carries two stacked `ItemDisplay` entities; the plugin shows each player the right
+  one through Paper's per-player entity visibility (no packet tampering, no dependency).
+- The state updates as soon as the chest is opened, is restored on reconnect, and is reset by
+  `/rchest reset` and by refills (`refill-hours`).
+- Barrels are supported too, with their own models (`per-block`).
+- While the visual skin is enabled, the vanilla lid animation is turned off.
+
+A complete resource pack example (6 models, test textures) lives in
+[`resourcepack-exemple/`](resourcepack-exemple/). Then set `visual.enabled: true` and run `/rchest reload`.
 
 ### Building
 

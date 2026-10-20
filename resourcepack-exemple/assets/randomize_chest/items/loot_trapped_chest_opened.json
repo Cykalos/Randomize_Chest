@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "randomize_chest:item/loot_trapped_chest_opened"
+  }
+}

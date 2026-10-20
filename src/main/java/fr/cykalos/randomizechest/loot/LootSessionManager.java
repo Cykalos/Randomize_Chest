@@ -88,6 +88,7 @@ public final class LootSessionManager {
         }
 
         player.openInventory(inventory);
+        plugin.visuals().markOpened(player, data.id(), holder.createdAt());
         if (blockLocation != null) lidOpened(blockLocation);
     }
 
@@ -118,6 +119,8 @@ public final class LootSessionManager {
     // ------------------------------------------------------------------ couvercle
 
     private void lidOpened(Location loc) {
+        // Avec l'habillage, le couvercle vanilla passerait à travers le modèle
+        if (plugin.settings().visualEnabled()) return;
         int count = lidViewers.merge(loc, 1, Integer::sum);
         if (count == 1 && loc.isChunkLoaded() && loc.getBlock().getState(false) instanceof Lidded lidded) {
             lidded.open();
@@ -125,6 +128,7 @@ public final class LootSessionManager {
     }
 
     private void lidClosed(Location loc) {
+        if (!lidViewers.containsKey(loc)) return;
         Integer count = lidViewers.computeIfPresent(loc, (l, c) -> c <= 1 ? null : c - 1);
         if (count == null && loc.isChunkLoaded() && loc.getBlock().getState(false) instanceof Lidded lidded) {
             lidded.close();
@@ -151,11 +155,13 @@ public final class LootSessionManager {
                 && (player == null || k.player().equals(player)));
         // Exécuté après les sauvegardes déclenchées par closeViewers (même thread DB)
         plugin.database().delete(containerId, player);
+        plugin.visuals().markReset(containerId, player);
     }
 
     /** Conteneur détruit : on oublie toutes ses données. */
     public void destroyed(String containerId, @Nullable Location blockLocation) {
         reset(containerId, null);
+        plugin.visuals().forget(containerId);
         if (blockLocation != null) lidViewers.remove(blockLocation);
     }
 

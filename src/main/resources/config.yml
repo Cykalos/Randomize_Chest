@@ -38,18 +38,32 @@ protection:
   # Empêche les entonnoirs d'insérer/retirer des objets
   hoppers: true
 
-# Habillage visuel : un ItemDisplay avec votre modèle (resource pack) est posé
-# sur chaque coffre à butin pour le différencier. Activez-le quand la texture est prête,
-# puis faites /rchest visuals refresh.
+# Habillage visuel (comme Lootr) : chaque coffre à butin est recouvert par un modèle
+# de votre resource pack, et ce modèle dépend du joueur qui regarde :
+#   - item-model        : joueurs qui n'ont PAS encore ouvert ce coffre
+#   - opened-item-model : joueurs qui l'ont DÉJÀ ouvert
+# Deux joueurs devant le même coffre peuvent donc voir deux textures différentes.
+# Activez-le quand vos textures sont prêtes : /rchest reload applique les changements.
 visual:
   enabled: false
-  # Clé du modèle d'item (composant item_model) définie dans le resource pack
   item-model: "randomize_chest:loot_chest"
+  opened-item-model: "randomize_chest:loot_chest_opened"
+  # Modèles propres à un type de bloc (sinon ceux ci-dessus sont utilisés)
+  per-block:
+    TRAPPED_CHEST:
+      item-model: "randomize_chest:loot_trapped_chest"
+      opened-item-model: "randomize_chest:loot_trapped_chest_opened"
+    BARREL:
+      item-model: "randomize_chest:loot_barrel"
+      opened-item-model: "randomize_chest:loot_barrel_opened"
   # NONE, FIXED, HEAD, GUI, GROUND...
   transform: NONE
   scale: 1.0
-  # Décalage vertical depuis le bas du bloc (0.5 = centre)
+  # Hauteur du centre du modèle depuis le bas du bloc (0.5 = centre du bloc)
   y-offset: 0.5
+  # Rotation supplémentaire en degrés si votre modèle n'est pas orienté comme prévu
+  # (face avant du modèle = face « north » dans Blockbench)
+  yaw-offset: 0
 
 messages:
   prefix: "<gray>[<gold>Butin</gold>]</gray> "

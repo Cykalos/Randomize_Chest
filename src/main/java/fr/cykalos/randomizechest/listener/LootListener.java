@@ -4,6 +4,7 @@ import fr.cykalos.randomizechest.RandomizeChestPlugin;
 import fr.cykalos.randomizechest.loot.LootData;
 import fr.cykalos.randomizechest.loot.LootInventoryHolder;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
@@ -19,8 +20,11 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
+import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 /** Conversion des conteneurs naturels et ouverture des inventaires personnels. */
@@ -43,10 +47,31 @@ public final class LootListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntitiesLoad(EntitiesLoadEvent event) {
-        if (!plugin.settings().minecarts()) return;
-        for (Entity entity : event.getEntities()) {
-            if (entity instanceof StorageMinecart) plugin.lootService().getOrConvert(entity);
+        if (plugin.settings().minecarts()) {
+            for (Entity entity : event.getEntities()) {
+                if (entity instanceof StorageMinecart) plugin.lootService().getOrConvert(entity);
+            }
         }
+        // Les entités d'un chunk se chargent après ses blocs : c'est le bon moment pour
+        // enregistrer les habillages existants et poser ceux qui manquent.
+        plugin.visuals().onEntitiesLoaded(event.getEntities());
+        Chunk chunk = event.getChunk();
+        if (chunk.isLoaded()) plugin.visuals().ensureChunk(chunk);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onEntitiesUnload(EntitiesUnloadEvent event) {
+        plugin.visuals().onEntitiesUnloaded(event.getEntities());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onJoin(PlayerJoinEvent event) {
+        plugin.visuals().loadPlayer(event.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onQuit(PlayerQuitEvent event) {
+        plugin.visuals().unloadPlayer(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

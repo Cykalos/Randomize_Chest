@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -58,6 +60,7 @@ public final class LootDatabase {
                                 updated_at   INTEGER NOT NULL,
                                 PRIMARY KEY (container_id, player_uuid)
                             )""");
+                    st.execute("CREATE INDEX IF NOT EXISTS idx_loot_player ON loot_inventories (player_uuid)");
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -116,6 +119,23 @@ public final class LootDatabase {
                 logger.log(Level.SEVERE, "Suppression impossible du butin " + containerId, e);
                 return 0;
             }
+        }, executor);
+    }
+
+    /** Conteneurs déjà ouverts par un joueur : id du conteneur → date du tirage. */
+    public CompletableFuture<Map<String, Long>> openedBy(UUID player) {
+        return CompletableFuture.supplyAsync(() -> {
+            Map<String, Long> result = new HashMap<>();
+            try (PreparedStatement ps = connection.prepareStatement(
+                    "SELECT container_id, created_at FROM loot_inventories WHERE player_uuid = ?")) {
+                ps.setString(1, player.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) result.put(rs.getString(1), rs.getLong(2));
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Lecture impossible des coffres ouverts par " + player, e);
+            }
+            return result;
         }, executor);
     }
 

@@ -47,6 +47,8 @@ public final class LootCommand implements TabExecutor {
         switch (args[0].toLowerCase(Locale.ROOT)) {
             case "reload" -> {
                 plugin.reloadSettings();
+                // Applique les nouveaux modèles (ou retire les habillages si désactivés)
+                plugin.visuals().refreshLoaded();
                 sender.sendMessage(plugin.settings().msg("reloaded"));
             }
             case "scan" -> sender.sendMessage(s.msg("scan-done",

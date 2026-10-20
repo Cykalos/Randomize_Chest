@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "fr.cykalos"
-version = "1.0.0"
+version = "1.1.0"
 
 // Paper 26.1+ tourne sur Java 25
 java {

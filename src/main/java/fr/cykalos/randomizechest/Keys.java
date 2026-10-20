@@ -16,6 +16,8 @@ public final class Keys {
     public final NamespacedKey playerPlaced;
     /** Marqueur des ItemDisplay d'habillage (valeur = id du conteneur). */
     public final NamespacedKey visualOwner;
+    /** État représenté par un ItemDisplay : "unopened" ou "opened". */
+    public final NamespacedKey visualState;
 
     public Keys(Plugin plugin) {
         containerId = new NamespacedKey(plugin, "container_id");
@@ -23,5 +25,6 @@ public final class Keys {
         lootSeed = new NamespacedKey(plugin, "loot_seed");
         playerPlaced = new NamespacedKey(plugin, "player_placed");
         visualOwner = new NamespacedKey(plugin, "visual_owner");
+        visualState = new NamespacedKey(plugin, "visual_state");
     }
 }
