@@ -59,7 +59,7 @@ public final class VisualManager {
     private static final String LID = "lid";
 
     /** À augmenter quand la position, l'orientation, la taille ou la découpe des habillages change. */
-    private static final int REVISION = 5;
+    private static final int REVISION = 6;
 
     /** Durée de l'ouverture en ticks (0,5 s, comme en vanilla). */
     private static final int LID_TICKS = 10;
@@ -152,9 +152,9 @@ public final class VisualManager {
                 default -> 0f;
             };
         }
-        // Légèrement plus grand que le bloc pour le recouvrir sans scintillement. Le couvercle
-        // l'est un peu plus, pour cacher le vrai couvercle qui s'ouvre en même temps à l'intérieur.
-        float scale = s.visualScale() * (LID.equals(part) ? 1.015f : 1.01f);
+        // Les modèles de coffre sont déjà un peu plus épais que les pièces vanilla qu'ils recouvrent.
+        // Les autres modèles (tonneau) sont légèrement agrandis pour éviter le scintillement.
+        float scale = s.visualScale() * (hasLid(block.getType()) ? 1.0f : 1.01f);
 
         Location spawn;
         float translateY = 0f;

@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.3] — 2026-10-22
+
+### 🇫🇷 Corrigé
+- Le couvercle vanilla n'est plus visible à travers celui du modèle quand le coffre est ouvert : les modèles du corps, du couvercle et de la serrure enveloppent désormais entièrement les pièces vanilla, sans faces superposées.
+
+### 🇬🇧 Fixed
+- The vanilla lid no longer shows through the model's lid when the chest is open: the body, lid and latch models now fully wrap the vanilla parts, with no overlapping faces.
+
 ## [1.5.2] — 2026-10-22
 
 ### 🇫🇷 Corrigé

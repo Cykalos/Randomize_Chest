@@ -58,7 +58,7 @@ public final class ResourcePackService {
      * Révision des modèles du pack embarqué. Quand elle augmente, les fichiers .json / .mcmeta
      * extraits sont mis à jour ; les textures (.png) présentes ne sont jamais écrasées.
      */
-    private static final int PACK_REVISION = 4;
+    private static final int PACK_REVISION = 5;
     private static final String REVISION_FILE = ".randomize_chest_revision";
     /** Fichiers devenus inutiles, supprimés lors de la mise à jour vers la révision 2. */
     private static final List<String> OBSOLETE = List.of(
