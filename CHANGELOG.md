@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.1] — 2026-10-22
+
+### 🇫🇷 Corrigé
+- Le coffre vanilla fermé n'est plus visible à l'intérieur d'un coffre habillé ouvert : le vrai couvercle s'ouvre maintenant en même temps, caché sous celui du modèle.
+- Le son d'ouverture et de fermeture est de nouveau joué par le coffre lui-même, exactement comme en vanilla.
+- L'animation du couvercle suit celle du coffre vanilla tick par tick, pour que les deux restent alignés.
+
+### 🇬🇧 Fixed
+- The closed vanilla chest is no longer visible inside an open skinned chest: the real lid now opens at the same time, hidden under the model's lid.
+- The open/close sound is played by the chest itself again, exactly like vanilla.
+- The lid animation follows the vanilla chest tick by tick so both stay aligned.
+
 ## [1.5.0] — 2026-10-22
 
 ### 🇫🇷 Modifié

@@ -59,15 +59,15 @@ public final class VisualManager {
     private static final String LID = "lid";
 
     /** À augmenter quand la position, l'orientation, la taille ou la découpe des habillages change. */
-    private static final int REVISION = 3;
+    private static final int REVISION = 4;
 
     /** Durée de l'ouverture en ticks (0,5 s, comme en vanilla). */
     private static final int LID_TICKS = 10;
     /**
-     * Étapes envoyées au client, qui interpole entre elles : elles suivent la courbe du couvercle
-     * vanilla (1 - (1 - t)³), rapide au départ puis amortie.
+     * Étapes envoyées au client, qui interpole entre elles. Une par tick, comme le couvercle
+     * vanilla qui tourne en même temps à l'intérieur : les deux restent synchronisés.
      */
-    private static final int[] LID_KEYS = {0, 2, 5, 10};
+    private static final int[] LID_KEYS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
     private final RandomizeChestPlugin plugin;
 
@@ -157,8 +157,9 @@ public final class VisualManager {
                 default -> 0f;
             };
         }
-        // Légèrement plus grand que le bloc pour le recouvrir sans scintillement
-        float scale = s.visualScale() * 1.01f;
+        // Légèrement plus grand que le bloc pour le recouvrir sans scintillement. Le couvercle
+        // l'est un peu plus, pour cacher le vrai couvercle qui s'ouvre en même temps à l'intérieur.
+        float scale = s.visualScale() * (LID.equals(part) ? 1.025f : 1.01f);
 
         Location spawn;
         float translateY = 0f;
