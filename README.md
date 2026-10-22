@@ -95,8 +95,8 @@ voit `opened-item-model`. Deux joueurs devant le même coffre peuvent donc voir 
 
 ### Pack de ressources inclus
 
-Le pack (6 modèles, textures de test) est **inclus dans le `.jar`** et extrait au premier démarrage
-dans `plugins/Randomize_Chest/resourcepack/`. Remplacez-y les textures par les vôtres puis faites
+Le pack est **inclus dans le `.jar`** et extrait au premier démarrage
+dans `plugins/Randomize_Chest/resourcepack/`. Les coffres utilisent le format de texture du coffre vanilla (64×64) : partez de la texture vanilla, remplacez-y les fichiers (détails dans [`resourcepack/LISEZMOI.md`](resourcepack/LISEZMOI.md)) puis faites
 `/rchest reload` : le pack est reconstruit et renvoyé aux joueurs. Les fichiers déjà présents ne
 sont jamais écrasés par une mise à jour du plugin. Sources : [`resourcepack/`](resourcepack/).
 
@@ -203,8 +203,8 @@ Two players in front of the same chest can see two different textures.
 
 ### Bundled resource pack
 
-The pack (6 models, test textures) is **bundled in the `.jar`** and extracted on first start to
-`plugins/Randomize_Chest/resourcepack/`. Replace the textures there with your own, then run
+The pack is **bundled in the `.jar`** and extracted on first start to
+`plugins/Randomize_Chest/resourcepack/`. Chests use the vanilla chest texture format (64×64): start from the vanilla texture, replace the files there (details in [`resourcepack/LISEZMOI.md`](resourcepack/LISEZMOI.md)), then run
 `/rchest reload`: the pack is rebuilt and sent again to players. Files already present are never
 overwritten by a plugin update. Sources: [`resourcepack/`](resourcepack/).
 

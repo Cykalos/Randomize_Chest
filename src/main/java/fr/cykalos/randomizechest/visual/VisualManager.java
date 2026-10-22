@@ -47,6 +47,8 @@ public final class VisualManager {
 
     private static final String UNOPENED = "unopened";
     private static final String OPENED = "opened";
+    /** À augmenter quand la position, l'orientation ou la taille des habillages change. */
+    private static final int REVISION = 2;
 
     private final RandomizeChestPlugin plugin;
 
@@ -78,7 +80,13 @@ public final class VisualManager {
         for (ItemDisplay d : block.getWorld().getNearbyEntitiesByType(ItemDisplay.class, center, 1.0)) {
             if (!d.isValid() || !containerId.equals(owner(d))) continue;
             String state = state(d);
-            if (UNOPENED.equals(state) && unopened == null) {
+            boolean current = Integer.valueOf(REVISION).equals(d.getPersistentDataContainer()
+                    .get(plugin.keys().visualRevision, PersistentDataType.INTEGER));
+            if (!current) {
+                // Habillage d'une version précédente : recréé avec les réglages actuels
+                unregister(d);
+                d.remove();
+            } else if (UNOPENED.equals(state) && unopened == null) {
                 unopened = d;
             } else if (OPENED.equals(state) && opened == null) {
                 opened = d;
@@ -103,10 +111,11 @@ public final class VisualManager {
 
         float yaw = s.visualYawOffset();
         if (block.getBlockData() instanceof Directional dir) {
+            // Face avant du modèle = face sud, comme le coffre vanilla
             yaw += switch (dir.getFacing()) {
-                case NORTH -> 180f;
-                case EAST -> -90f;
-                case WEST -> 90f;
+                case SOUTH -> 180f;
+                case EAST -> 90f;
+                case WEST -> -90f;
                 default -> 0f;
             };
         }
@@ -124,7 +133,8 @@ public final class VisualManager {
         meta.setItemModel(model);
         item.setItemMeta(meta);
 
-        float scale = s.visualScale();
+        // Légèrement plus grand que le bloc pour le recouvrir sans scintillement
+        float scale = s.visualScale() * 1.01f;
         return block.getWorld().spawn(spawn, ItemDisplay.class, d -> {
             d.setItemStack(item);
             d.setItemDisplayTransform(s.visualTransform());
@@ -135,6 +145,7 @@ public final class VisualManager {
             PersistentDataContainer pdc = d.getPersistentDataContainer();
             pdc.set(plugin.keys().visualOwner, PersistentDataType.STRING, containerId);
             pdc.set(plugin.keys().visualState, PersistentDataType.STRING, state);
+            pdc.set(plugin.keys().visualRevision, PersistentDataType.INTEGER, REVISION);
         });
     }
 

@@ -18,6 +18,8 @@ public final class Keys {
     public final NamespacedKey visualOwner;
     /** État représenté par un ItemDisplay : "unopened" ou "opened". */
     public final NamespacedKey visualState;
+    /** Révision de l'habillage : une révision plus ancienne est recréée. */
+    public final NamespacedKey visualRevision;
 
     public Keys(Plugin plugin) {
         containerId = new NamespacedKey(plugin, "container_id");
@@ -26,5 +28,6 @@ public final class Keys {
         playerPlaced = new NamespacedKey(plugin, "player_placed");
         visualOwner = new NamespacedKey(plugin, "visual_owner");
         visualState = new NamespacedKey(plugin, "visual_state");
+        visualRevision = new NamespacedKey(plugin, "visual_revision");
     }
 }

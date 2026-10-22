@@ -54,6 +54,22 @@ public final class ResourcePackService {
     private static final UUID PACK_ID = UUID.nameUUIDFromBytes("randomize_chest:resourcepack".getBytes(StandardCharsets.UTF_8));
     /** Date fixe dans le zip : même contenu = même empreinte = pas de re-téléchargement. */
     private static final FileTime FIXED_TIME = FileTime.fromMillis(946684800000L);
+    /**
+     * Révision des modèles du pack embarqué. Quand elle augmente, les fichiers .json / .mcmeta
+     * extraits sont mis à jour ; les textures (.png) présentes ne sont jamais écrasées.
+     */
+    private static final int PACK_REVISION = 2;
+    private static final String REVISION_FILE = ".randomize_chest_revision";
+    /** Fichiers devenus inutiles, supprimés lors de la mise à jour vers la révision 2. */
+    private static final List<String> OBSOLETE = List.of(
+            "assets/randomize_chest/models/item/loot_chest.json",
+            "assets/randomize_chest/models/item/loot_chest_opened.json",
+            "assets/randomize_chest/models/item/loot_trapped_chest.json",
+            "assets/randomize_chest/models/item/loot_trapped_chest_opened.json",
+            "assets/randomize_chest/textures/item/loot_chest.png",
+            "assets/randomize_chest/textures/item/loot_chest_opened.png",
+            "assets/randomize_chest/textures/item/loot_trapped_chest.png",
+            "assets/randomize_chest/textures/item/loot_trapped_chest_opened.png");
 
     private final RandomizeChestPlugin plugin;
     private final File jarFile;
@@ -105,9 +121,18 @@ public final class ResourcePackService {
 
     // ------------------------------------------------------------------ fichiers
 
-    /** Copie depuis le .jar les fichiers du pack qui n'existent pas encore sur le disque. */
+    /**
+     * Copie depuis le .jar les fichiers du pack qui manquent sur le disque.
+     * Après une mise à jour des modèles, les .json / .mcmeta sont remplacés (jamais les .png).
+     */
     private void extractMissing() {
         int copied = 0;
+        File revisionFile = new File(folder, REVISION_FILE);
+        int installed = readRevision(revisionFile);
+        boolean upgrade = folder.isDirectory() && installed < PACK_REVISION;
+        if (upgrade && installed < 2) {
+            for (String obsolete : OBSOLETE) new File(folder, obsolete).delete();
+        }
         try (JarFile jar = new JarFile(jarFile)) {
             Enumeration<JarEntry> entries = jar.entries();
             while (entries.hasMoreElements()) {
@@ -115,10 +140,12 @@ public final class ResourcePackService {
                 String name = entry.getName();
                 if (!name.startsWith(JAR_PREFIX) || entry.isDirectory()) continue;
                 File target = new File(folder, name.substring(JAR_PREFIX.length()));
-                if (!target.toPath().normalize().startsWith(folder.toPath().normalize()) || target.exists()) continue;
+                if (!target.toPath().normalize().startsWith(folder.toPath().normalize())) continue;
+                boolean replace = upgrade && !name.toLowerCase().endsWith(".png");
+                if (target.exists() && !replace) continue;
                 target.getParentFile().mkdirs();
                 try (InputStream in = jar.getInputStream(entry)) {
-                    Files.copy(in, target.toPath());
+                    Files.copy(in, target.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                     copied++;
                 }
             }
@@ -126,6 +153,22 @@ public final class ResourcePackService {
             plugin.getLogger().log(Level.WARNING, "Extraction du pack de ressources impossible", e);
         }
         if (copied > 0) plugin.getLogger().info(copied + " fichier(s) du pack de ressources extrait(s) dans " + folder.getPath());
+        if (installed < PACK_REVISION) {
+            try {
+                folder.mkdirs();
+                Files.writeString(revisionFile.toPath(), String.valueOf(PACK_REVISION));
+            } catch (IOException e) {
+                plugin.getLogger().log(Level.WARNING, "Écriture de " + REVISION_FILE + " impossible", e);
+            }
+        }
+    }
+
+    private static int readRevision(File file) {
+        try {
+            return Integer.parseInt(Files.readString(file.toPath()).trim());
+        } catch (IOException | NumberFormatException e) {
+            return 1; // pack extrait par la version 1.2.0 (ou dossier absent)
+        }
     }
 
     /** Compresse le dossier du pack et calcule son empreinte SHA-1. */

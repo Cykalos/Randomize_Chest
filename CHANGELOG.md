@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.3.0] — 2026-10-22
+
+### 🇫🇷 Modifié
+- Les coffres et coffres piégés à butin utilisent désormais le rendu du coffre vanilla : leurs textures ont le même format que celles de Minecraft (64×64, `textures/entity/chest/`). Une texture de coffre vanilla modifiée fonctionne telle quelle.
+- Les habillages sont légèrement agrandis pour recouvrir le bloc sans scintillement.
+- Les habillages existants sont recréés automatiquement avec la nouvelle orientation.
+- Les modèles du pack déjà extrait sont mis à jour automatiquement ; vos textures `.png` ne sont jamais écrasées.
+
+### 🇫🇷 Supprimé
+- Anciens modèles en cube et textures 16×16 des coffres et coffres piégés (supprimés du pack extrait lors de la mise à jour).
+
+### 🇬🇧 Changed
+- Loot chests and trapped chests now use the vanilla chest renderer: their textures use the same format as Minecraft's (64×64, `textures/entity/chest/`). An edited vanilla chest texture works as is.
+- Visual skins are slightly enlarged to cover the block without flickering.
+- Existing visual skins are recreated automatically with the new orientation.
+- Models in the already extracted pack are updated automatically; your `.png` textures are never overwritten.
+
+### 🇬🇧 Removed
+- Old cube models and 16×16 textures for chests and trapped chests (removed from the extracted pack during the update).
+
 ## [1.2.0] — 2026-10-20
 
 ### 🇫🇷 Ajouté

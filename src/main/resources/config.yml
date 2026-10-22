@@ -62,7 +62,7 @@ visual:
   # Hauteur du centre du modèle depuis le bas du bloc (0.5 = centre du bloc)
   y-offset: 0.5
   # Rotation supplémentaire en degrés si votre modèle n'est pas orienté comme prévu
-  # (face avant du modèle = face « north » dans Blockbench)
+  # (face avant du modèle = face sud, comme le coffre vanilla)
   yaw-offset: 0
 
 # Pack de ressources des coffres à butin. Il est inclus dans le plugin et extrait dans
