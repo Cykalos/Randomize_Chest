@@ -16,8 +16,11 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
@@ -49,6 +52,8 @@ public final class VisualManager {
     private static final String OPENED = "opened";
     /** À augmenter quand la position, l'orientation ou la taille des habillages change. */
     private static final int REVISION = 2;
+    /** Nombre d'images de l'animation du couvercle (1 par tick = 0,5 s, comme en vanilla). */
+    private static final int LID_FRAMES = 10;
 
     private final RandomizeChestPlugin plugin;
 
@@ -58,6 +63,10 @@ public final class VisualManager {
 
     /** Joueurs connectés : conteneurs déjà ouverts (id → date du tirage). */
     private final Map<UUID, Map<String, Long>> openedByPlayer = new ConcurrentHashMap<>();
+
+    /** Image actuelle du couvercle par conteneur (absent = fermé) et animations en cours. */
+    private final Map<String, Integer> lidFrames = new HashMap<>();
+    private final Map<String, BukkitTask> lidAnimations = new HashMap<>();
 
     public VisualManager(RandomizeChestPlugin plugin) {
         this.plugin = plugin;
@@ -151,6 +160,9 @@ public final class VisualManager {
 
     /** Retire les habillages d'un conteneur détruit. */
     public void remove(Block block, String containerId) {
+        BukkitTask anim = lidAnimations.remove(containerId);
+        if (anim != null) anim.cancel();
+        lidFrames.remove(containerId);
         Location center = block.getLocation().add(0.5, 0.5, 0.5);
         for (ItemDisplay d : block.getWorld().getNearbyEntitiesByType(ItemDisplay.class, center, 1.5)) {
             if (containerId.equals(owner(d))) d.remove();
@@ -212,6 +224,8 @@ public final class VisualManager {
                 continue;
             }
             register(d);
+            // Couvercle resté ouvert (arrêt brutal du serveur) : on le referme
+            if (!lidFrames.containsKey(id)) setFrame(d, 0);
             applyToOnline(id);
         }
     }
@@ -240,6 +254,65 @@ public final class VisualManager {
         if (id == null) return;
         unopenedDisplays.remove(id, d.getUniqueId());
         openedDisplays.remove(id, d.getUniqueId());
+    }
+
+    // ------------------------------------------------------------------ animation du couvercle
+
+    /**
+     * Ouvre ou referme le couvercle des deux habillages, une image par tick.
+     * Une animation en cours est reprise depuis l'image où elle en est.
+     */
+    public void animateLid(String containerId, boolean open) {
+        // Pendant l'arrêt du plugin, aucune tâche ne peut être planifiée (voir closeAllLids)
+        if (!settings().visualEnabled() || !plugin.isEnabled()) return;
+        BukkitTask previous = lidAnimations.remove(containerId);
+        if (previous != null) previous.cancel();
+        int target = open ? LID_FRAMES : 0;
+        BukkitRunnable runnable = new BukkitRunnable() {
+            @Override
+            public void run() {
+                int frame = lidFrames.getOrDefault(containerId, 0);
+                if (frame == target) {
+                    cancel();
+                    BukkitTask current = lidAnimations.get(containerId);
+                    if (current != null && current.getTaskId() == getTaskId()) lidAnimations.remove(containerId);
+                    return;
+                }
+                frame += open ? 1 : -1;
+                if (frame == 0) lidFrames.remove(containerId);
+                else lidFrames.put(containerId, frame);
+                for (UUID id : new UUID[]{unopenedDisplays.get(containerId), openedDisplays.get(containerId)}) {
+                    if (entity(id) instanceof ItemDisplay d) setFrame(d, frame);
+                }
+            }
+        };
+        lidAnimations.put(containerId, runnable.runTaskTimer(plugin, 0L, 1L));
+    }
+
+    /** Arrêt du plugin : referme instantanément tous les couvercles. */
+    public void closeAllLids() {
+        lidAnimations.values().forEach(BukkitTask::cancel);
+        lidAnimations.clear();
+        for (String containerId : lidFrames.keySet()) {
+            for (UUID id : new UUID[]{unopenedDisplays.get(containerId), openedDisplays.get(containerId)}) {
+                if (entity(id) instanceof ItemDisplay d) setFrame(d, 0);
+            }
+        }
+        lidFrames.clear();
+    }
+
+    /** L'image est choisie par le pack via custom_model_data (0 = fermé). */
+    private static void setFrame(ItemDisplay display, int frame) {
+        ItemStack item = display.getItemStack();
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+        CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
+        List<Float> floats = frame == 0 ? List.of() : List.of((float) frame);
+        if (cmd.getFloats().equals(floats)) return;
+        cmd.setFloats(floats);
+        meta.setCustomModelDataComponent(cmd);
+        item.setItemMeta(meta);
+        display.setItemStack(item);
     }
 
     // ------------------------------------------------------------------ état par joueur

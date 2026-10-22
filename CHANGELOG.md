@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.4.0] — 2026-10-22
+
+### 🇫🇷 Ajouté
+- Animation du couvercle des coffres et coffres piégés habillés : 10 images sur 0,5 seconde, avec la même accélération que le couvercle vanilla. Chaque joueur voit le couvercle s'ouvrir avec sa propre texture (non ouvert / déjà ouvert).
+
+### 🇫🇷 Modifié
+- Les modèles du pack déjà extrait sont mis à jour automatiquement pour l'animation ; vos textures `.png` ne sont pas touchées.
+- Un couvercle resté ouvert après un arrêt brutal du serveur est refermé au chargement.
+
+### 🇬🇧 Added
+- Lid animation for skinned chests and trapped chests: 10 frames over 0.5 seconds, with the same easing as the vanilla lid. Each player sees the lid open with their own texture (unopened / opened).
+
+### 🇬🇧 Changed
+- Models in the already extracted pack are updated automatically for the animation; your `.png` textures are left untouched.
+- A lid left open after a server crash is closed again when it loads.
+
 ## [1.3.1] — 2026-10-22
 
 ### 🇫🇷 Corrigé

@@ -93,7 +93,7 @@ public final class LootSessionManager {
 
         player.openInventory(inventory);
         plugin.visuals().markOpened(player, data.id(), holder.createdAt());
-        if (blockLocation != null) lidOpened(blockLocation);
+        if (blockLocation != null) lidOpened(blockLocation, data.id());
     }
 
     private Inventory createInventory(LootInventoryHolder holder, InventoryType type) {
@@ -117,7 +117,7 @@ public final class LootSessionManager {
         plugin.database().save(key.containerId(), key.player(), snapshot.contents(), snapshot.createdAt())
                 .whenComplete((v, e) -> pending.remove(key, snapshot));
 
-        if (holder.blockLocation() != null) lidClosed(holder.blockLocation());
+        if (holder.blockLocation() != null) lidClosed(holder.blockLocation(), holder.data().id());
     }
 
     // ------------------------------------------------------------------ couvercle
@@ -125,24 +125,26 @@ public final class LootSessionManager {
     /**
      * Comme en vanilla : effet au premier joueur qui ouvre, et au dernier qui referme.
      * Sans habillage, le vrai couvercle s'anime (il joue lui-même le son).
-     * Avec l'habillage, le couvercle passerait à travers le modèle : on joue seulement le son.
+     * Avec l'habillage, c'est le modèle qui s'anime (le vrai couvercle passerait à travers).
      */
-    private void lidOpened(Location loc) {
+    private void lidOpened(Location loc, String containerId) {
         int count = lidViewers.merge(loc, 1, Integer::sum);
         if (count != 1 || !loc.isChunkLoaded()) return;
         if (plugin.settings().visualEnabled()) {
             playSound(loc, true);
+            plugin.visuals().animateLid(containerId, true);
         } else if (loc.getBlock().getState(false) instanceof Lidded lidded) {
             lidded.open();
         }
     }
 
-    private void lidClosed(Location loc) {
+    private void lidClosed(Location loc, String containerId) {
         if (!lidViewers.containsKey(loc)) return;
         Integer count = lidViewers.computeIfPresent(loc, (l, c) -> c <= 1 ? null : c - 1);
         if (count != null || !loc.isChunkLoaded()) return;
         if (plugin.settings().visualEnabled()) {
             playSound(loc, false);
+            plugin.visuals().animateLid(containerId, false);
         } else if (loc.getBlock().getState(false) instanceof Lidded lidded) {
             lidded.close();
         }

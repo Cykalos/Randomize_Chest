@@ -78,6 +78,7 @@ public final class RandomizeChestPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (sessions != null) sessions.closeAll();
+        if (visuals != null) visuals.closeAllLids();
         if (pack != null) pack.stop();
         if (database != null) database.close();
     }

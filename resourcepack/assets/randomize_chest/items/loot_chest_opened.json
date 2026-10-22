@@ -1,10 +1,137 @@
 {
   "model": {
-    "type": "minecraft:special",
-    "base": "minecraft:item/chest",
-    "model": {
-      "type": "minecraft:chest",
-      "texture": "randomize_chest:loot_chest_opened"
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 1,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/chest",
+          "model": {
+            "type": "minecraft:chest",
+            "texture": "randomize_chest:loot_chest_opened",
+            "openness": 0.271
+          }
+        }
+      },
+      {
+        "threshold": 2,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/chest",
+          "model": {
+            "type": "minecraft:chest",
+            "texture": "randomize_chest:loot_chest_opened",
+            "openness": 0.488
+          }
+        }
+      },
+      {
+        "threshold": 3,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/chest",
+          "model": {
+            "type": "minecraft:chest",
+            "texture": "randomize_chest:loot_chest_opened",
+            "openness": 0.657
+          }
+        }
+      },
+      {
+        "threshold": 4,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/chest",
+          "model": {
+            "type": "minecraft:chest",
+            "texture": "randomize_chest:loot_chest_opened",
+            "openness": 0.784
+          }
+        }
+      },
+      {
+        "threshold": 5,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/chest",
+          "model": {
+            "type": "minecraft:chest",
+            "texture": "randomize_chest:loot_chest_opened",
+            "openness": 0.875
+          }
+        }
+      },
+      {
+        "threshold": 6,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/chest",
+          "model": {
+            "type": "minecraft:chest",
+            "texture": "randomize_chest:loot_chest_opened",
+            "openness": 0.936
+          }
+        }
+      },
+      {
+        "threshold": 7,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/chest",
+          "model": {
+            "type": "minecraft:chest",
+            "texture": "randomize_chest:loot_chest_opened",
+            "openness": 0.973
+          }
+        }
+      },
+      {
+        "threshold": 8,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/chest",
+          "model": {
+            "type": "minecraft:chest",
+            "texture": "randomize_chest:loot_chest_opened",
+            "openness": 0.992
+          }
+        }
+      },
+      {
+        "threshold": 9,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/chest",
+          "model": {
+            "type": "minecraft:chest",
+            "texture": "randomize_chest:loot_chest_opened",
+            "openness": 0.999
+          }
+        }
+      },
+      {
+        "threshold": 10,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/chest",
+          "model": {
+            "type": "minecraft:chest",
+            "texture": "randomize_chest:loot_chest_opened",
+            "openness": 1.0
+          }
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:special",
+      "base": "minecraft:item/chest",
+      "model": {
+        "type": "minecraft:chest",
+        "texture": "randomize_chest:loot_chest_opened"
+      }
     }
   }
 }

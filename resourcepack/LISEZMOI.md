@@ -42,7 +42,7 @@ Les tonneaux utilisent un cube simple : une image **16×16** appliquée sur chaq
 - Une mise à jour du plugin n'écrase jamais vos fichiers `.png`.
 - Si un coffre apparaît tourné à l'envers, réglez `visual.yaw-offset: 180` dans `config.yml`.
 - Le `pack.mcmeta` fourni accepte les versions 26.1 et suivantes (`min_format` 84).
-- Avec l'habillage activé, l'animation vanilla du couvercle est désactivée.
+- Le couvercle s'anime à l'ouverture (10 images) : chaque fichier `items/loot_*chest*.json` contient les 10 positions du couvercle, choisies par le plugin. Ne modifiez que les textures.
 
 ---
 
@@ -84,4 +84,4 @@ Barrels use a plain cube: one **16×16** image applied to every face.
 - A plugin update never overwrites your `.png` files.
 - If a chest shows up facing backwards, set `visual.yaw-offset: 180` in `config.yml`.
 - The provided `pack.mcmeta` accepts 26.1 and later (`min_format` 84).
-- While the visual skin is enabled, the vanilla lid animation is turned off.
+- The lid is animated when opened (10 frames): each `items/loot_*chest*.json` file holds the 10 lid positions picked by the plugin. Only edit the textures.
