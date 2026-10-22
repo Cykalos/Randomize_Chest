@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -16,12 +17,12 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
@@ -38,34 +39,46 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Apparence des conteneurs à butin, propre à chaque joueur (comme Lootr).
  * <p>
- * Chaque conteneur porte deux ItemDisplay superposés :
+ * Chaque conteneur porte des ItemDisplay superposés, pour deux états :
  * <ul>
- *   <li>« non ouvert » : visible par défaut ;</li>
- *   <li>« déjà ouvert » : caché par défaut.</li>
+ *   <li>« non ouvert » : visibles par défaut ;</li>
+ *   <li>« déjà ouvert » : cachés par défaut.</li>
  * </ul>
- * Pour un joueur qui a déjà ouvert le conteneur, le premier est caché et le second montré,
- * grâce à la visibilité d'entités par joueur de Paper. Les autres joueurs ne voient aucun changement.
+ * Pour un joueur qui a déjà ouvert le conteneur, les premiers sont cachés et les seconds montrés,
+ * grâce à la visibilité d'entités par joueur de Paper.
+ * <p>
+ * Les coffres sont en deux parties (corps + couvercle). Le couvercle a sa charnière à l'origine de
+ * son entité : il pivote par une transformation que le client interpole lui-même, image par image.
  */
 public final class VisualManager {
 
     private static final String UNOPENED = "unopened";
     private static final String OPENED = "opened";
-    /** À augmenter quand la position, l'orientation ou la taille des habillages change. */
-    private static final int REVISION = 2;
-    /** Nombre d'images de l'animation du couvercle (1 par tick = 0,5 s, comme en vanilla). */
-    private static final int LID_FRAMES = 10;
+    private static final String[] STATES = {UNOPENED, OPENED};
+    private static final String BODY = "body";
+    private static final String LID = "lid";
+
+    /** À augmenter quand la position, l'orientation, la taille ou la découpe des habillages change. */
+    private static final int REVISION = 3;
+
+    /** Durée de l'ouverture en ticks (0,5 s, comme en vanilla). */
+    private static final int LID_TICKS = 10;
+    /**
+     * Étapes envoyées au client, qui interpole entre elles : elles suivent la courbe du couvercle
+     * vanilla (1 - (1 - t)³), rapide au départ puis amortie.
+     */
+    private static final int[] LID_KEYS = {0, 2, 5, 10};
 
     private final RandomizeChestPlugin plugin;
 
-    /** Displays chargés : id du conteneur → UUID de l'entité. */
-    private final Map<String, UUID> unopenedDisplays = new HashMap<>();
-    private final Map<String, UUID> openedDisplays = new HashMap<>();
+    /** Displays chargés : « id|état|partie » → UUID de l'entité. */
+    private final Map<String, UUID> displays = new HashMap<>();
 
     /** Joueurs connectés : conteneurs déjà ouverts (id → date du tirage). */
     private final Map<UUID, Map<String, Long>> openedByPlayer = new ConcurrentHashMap<>();
 
-    /** Image actuelle du couvercle par conteneur (absent = fermé) et animations en cours. */
-    private final Map<String, Integer> lidFrames = new HashMap<>();
+    /** Avancement du couvercle par conteneur, en ticks de 0 à 10 (absent = fermé), et animations en cours. */
+    private final Map<String, Integer> lidTicks = new HashMap<>();
     private final Map<String, BukkitTask> lidAnimations = new HashMap<>();
 
     public VisualManager(RandomizeChestPlugin plugin) {
@@ -76,46 +89,62 @@ public final class VisualManager {
         return plugin.settings();
     }
 
+    private static String key(String containerId, String state, String part) {
+        return containerId + "|" + state + "|" + part;
+    }
+
+    private static boolean hasLid(Material type) {
+        return type == Material.CHEST || type == Material.TRAPPED_CHEST;
+    }
+
     // ------------------------------------------------------------------ création / suppression
 
-    /** Pose les deux habillages s'ils manquent (et remplace ceux d'anciennes versions). */
+    /** Pose les habillages qui manquent (et remplace ceux d'anciennes versions). */
     public void ensure(Block block, String containerId) {
         PluginSettings s = settings();
         if (!s.visualEnabled() || !block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4)) return;
+        boolean lid = hasLid(block.getType());
 
-        ItemDisplay unopened = null;
-        ItemDisplay opened = null;
+        Map<String, ItemDisplay> found = new HashMap<>();
         Location center = block.getLocation().add(0.5, 0.5, 0.5);
-        for (ItemDisplay d : block.getWorld().getNearbyEntitiesByType(ItemDisplay.class, center, 1.0)) {
+        for (ItemDisplay d : block.getWorld().getNearbyEntitiesByType(ItemDisplay.class, center, 1.5)) {
             if (!d.isValid() || !containerId.equals(owner(d))) continue;
-            String state = state(d);
             boolean current = Integer.valueOf(REVISION).equals(d.getPersistentDataContainer()
                     .get(plugin.keys().visualRevision, PersistentDataType.INTEGER));
-            if (!current) {
-                // Habillage d'une version précédente : recréé avec les réglages actuels
-                unregister(d);
-                d.remove();
-            } else if (UNOPENED.equals(state) && unopened == null) {
-                unopened = d;
-            } else if (OPENED.equals(state) && opened == null) {
-                opened = d;
+            String k = key(containerId, String.valueOf(state(d)), String.valueOf(part(d)));
+            if (current && !found.containsKey(k) && (lid || BODY.equals(part(d)))) {
+                found.put(k, d);
             } else {
-                // Doublon, ou habillage de la version 1.0.0 (sans état)
+                // Habillage d'une version précédente, ou doublon : recréé avec les réglages actuels
                 unregister(d);
                 d.remove();
             }
         }
 
         PluginSettings.VisualModels models = s.modelsFor(block.getType());
-        if (unopened == null) unopened = spawn(block, containerId, UNOPENED, models.unopened(), true);
-        if (opened == null) opened = spawn(block, containerId, OPENED, models.opened(), false);
-        register(unopened);
-        register(opened);
+        for (String state : STATES) {
+            NamespacedKey model = UNOPENED.equals(state) ? models.unopened() : models.opened();
+            boolean visible = UNOPENED.equals(state);
+            String bodyKey = key(containerId, state, BODY);
+            ItemDisplay body = found.get(bodyKey);
+            if (body == null) body = spawn(block, containerId, state, BODY, model, visible);
+            register(body);
+            if (lid) {
+                ItemDisplay lidDisplay = found.get(key(containerId, state, LID));
+                if (lidDisplay == null) {
+                    NamespacedKey lidModel = new NamespacedKey(model.getNamespace(), model.getKey() + "_lid");
+                    lidDisplay = spawn(block, containerId, state, LID, lidModel, visible);
+                    // Coffre ouvert à ce moment-là : le nouveau couvercle prend la même position
+                    if (lidTicks.containsKey(containerId)) setLid(lidDisplay, eased(lidTicks.get(containerId)), 0);
+                }
+                register(lidDisplay);
+            }
+        }
         applyToOnline(containerId);
     }
 
-    private ItemDisplay spawn(Block block, String containerId, String state,
-                              org.bukkit.NamespacedKey model, boolean visibleByDefault) {
+    private ItemDisplay spawn(Block block, String containerId, String state, String part,
+                              NamespacedKey model, boolean visibleByDefault) {
         PluginSettings s = settings();
 
         float yaw = s.visualYawOffset();
@@ -128,13 +157,23 @@ public final class VisualManager {
                 default -> 0f;
             };
         }
+        // Légèrement plus grand que le bloc pour le recouvrir sans scintillement
+        float scale = s.visualScale() * 1.01f;
 
-        // Une entité prend la lumière du bloc où elle se trouve : dans un bloc opaque (tonneau),
-        // elle serait toute noire. On la place alors sur la face du dessus et on décale le modèle.
-        double entityY = block.getType().isOccluding() ? 1.0 : s.visualYOffset();
-        float translateY = (float) (s.visualYOffset() - entityY);
-
-        Location spawn = block.getLocation().add(0.5, entityY, 0.5);
+        Location spawn;
+        float translateY = 0f;
+        if (LID.equals(part)) {
+            // Charnière du couvercle vanilla : 1 px au-dessus du centre, 7 px vers l'arrière
+            double rad = Math.toRadians(yaw);
+            Vector back = new Vector(-Math.sin(rad), 0, Math.cos(rad)).multiply(7.0 * scale / 16.0);
+            spawn = block.getLocation().add(0.5, s.visualYOffset() + scale / 16.0, 0.5).add(back);
+        } else {
+            // Une entité prend la lumière du bloc où elle se trouve : dans un bloc opaque (tonneau),
+            // elle serait toute noire. On la place alors sur la face du dessus et on décale le modèle.
+            double entityY = block.getType().isOccluding() ? 1.0 : s.visualYOffset();
+            translateY = (float) (s.visualYOffset() - entityY);
+            spawn = block.getLocation().add(0.5, entityY, 0.5);
+        }
         spawn.setYaw(yaw);
 
         ItemStack item = new ItemStack(Material.PAPER);
@@ -142,18 +181,18 @@ public final class VisualManager {
         meta.setItemModel(model);
         item.setItemMeta(meta);
 
-        // Légèrement plus grand que le bloc pour le recouvrir sans scintillement
-        float scale = s.visualScale() * 1.01f;
+        float ty = translateY;
         return block.getWorld().spawn(spawn, ItemDisplay.class, d -> {
             d.setItemStack(item);
             d.setItemDisplayTransform(s.visualTransform());
-            d.setTransformation(new Transformation(new Vector3f(0f, translateY, 0f), new AxisAngle4f(),
+            d.setTransformation(new Transformation(new Vector3f(0f, ty, 0f), new AxisAngle4f(),
                     new Vector3f(scale, scale, scale), new AxisAngle4f()));
             d.setPersistent(true);
             d.setVisibleByDefault(visibleByDefault);
             PersistentDataContainer pdc = d.getPersistentDataContainer();
             pdc.set(plugin.keys().visualOwner, PersistentDataType.STRING, containerId);
             pdc.set(plugin.keys().visualState, PersistentDataType.STRING, state);
+            pdc.set(plugin.keys().visualPart, PersistentDataType.STRING, part);
             pdc.set(plugin.keys().visualRevision, PersistentDataType.INTEGER, REVISION);
         });
     }
@@ -162,16 +201,13 @@ public final class VisualManager {
     public void remove(Block block, String containerId) {
         BukkitTask anim = lidAnimations.remove(containerId);
         if (anim != null) anim.cancel();
-        lidFrames.remove(containerId);
+        lidTicks.remove(containerId);
         Location center = block.getLocation().add(0.5, 0.5, 0.5);
         for (ItemDisplay d : block.getWorld().getNearbyEntitiesByType(ItemDisplay.class, center, 1.5)) {
             if (containerId.equals(owner(d))) d.remove();
         }
-        for (UUID id : new UUID[]{unopenedDisplays.remove(containerId), openedDisplays.remove(containerId)}) {
-            if (id == null) continue;
-            Entity e = Bukkit.getEntity(id);
-            if (e != null) e.remove();
-        }
+        for (Entity e : all(containerId)) e.remove();
+        displays.keySet().removeIf(k -> k.startsWith(containerId + "|"));
     }
 
     /** Conteneur détruit : on oublie aussi qui l'avait ouvert. */
@@ -186,8 +222,7 @@ public final class VisualManager {
                 if (owner(d) != null) d.remove();
             }
         }
-        unopenedDisplays.clear();
-        openedDisplays.clear();
+        displays.clear();
 
         int count = 0;
         if (!settings().visualEnabled()) return 0;
@@ -225,7 +260,7 @@ public final class VisualManager {
             }
             register(d);
             // Couvercle resté ouvert (arrêt brutal du serveur) : on le referme
-            if (!lidFrames.containsKey(id)) setFrame(d, 0);
+            if (LID.equals(part(d)) && !lidTicks.containsKey(id)) setLid(d, 0f, 0);
             applyToOnline(id);
         }
     }
@@ -243,76 +278,126 @@ public final class VisualManager {
 
     private void register(ItemDisplay d) {
         String id = owner(d);
-        if (id == null) return;
         String state = state(d);
-        if (UNOPENED.equals(state)) unopenedDisplays.put(id, d.getUniqueId());
-        else if (OPENED.equals(state)) openedDisplays.put(id, d.getUniqueId());
+        String part = part(d);
+        if (id == null || state == null || part == null) return;
+        displays.put(key(id, state, part), d.getUniqueId());
     }
 
     private void unregister(ItemDisplay d) {
         String id = owner(d);
-        if (id == null) return;
-        unopenedDisplays.remove(id, d.getUniqueId());
-        openedDisplays.remove(id, d.getUniqueId());
+        String state = state(d);
+        String part = part(d);
+        if (id == null || state == null || part == null) return;
+        displays.remove(key(id, state, part), d.getUniqueId());
+    }
+
+    private List<Entity> all(String containerId) {
+        List<Entity> out = new ArrayList<>();
+        for (String state : STATES) out.addAll(ofState(containerId, state));
+        return out;
+    }
+
+    private List<Entity> ofState(String containerId, String state) {
+        List<Entity> out = new ArrayList<>(2);
+        for (String part : new String[]{BODY, LID}) {
+            Entity e = entity(displays.get(key(containerId, state, part)));
+            if (e != null) out.add(e);
+        }
+        return out;
+    }
+
+    private List<ItemDisplay> lids(String containerId) {
+        List<ItemDisplay> out = new ArrayList<>(2);
+        for (String state : STATES) {
+            if (entity(displays.get(key(containerId, state, LID))) instanceof ItemDisplay d) out.add(d);
+        }
+        return out;
     }
 
     // ------------------------------------------------------------------ animation du couvercle
 
     /**
-     * Ouvre ou referme le couvercle des deux habillages, une image par tick.
-     * Une animation en cours est reprise depuis l'image où elle en est.
+     * Ouvre ou referme le couvercle. Le serveur n'envoie que quelques étapes ; entre deux étapes,
+     * c'est le client qui fait pivoter le couvercle de façon fluide (interpolation des Display).
+     * Une animation en cours est reprise depuis l'endroit où elle en est.
      */
     public void animateLid(String containerId, boolean open) {
         // Pendant l'arrêt du plugin, aucune tâche ne peut être planifiée (voir closeAllLids)
         if (!settings().visualEnabled() || !plugin.isEnabled()) return;
         BukkitTask previous = lidAnimations.remove(containerId);
         if (previous != null) previous.cancel();
-        int target = open ? LID_FRAMES : 0;
+        int target = open ? LID_TICKS : 0;
+        int direction = open ? 1 : -1;
         BukkitRunnable runnable = new BukkitRunnable() {
+            private boolean started;
+
             @Override
             public void run() {
-                int frame = lidFrames.getOrDefault(containerId, 0);
-                if (frame == target) {
+                int t = lidTicks.getOrDefault(containerId, 0);
+                if (!started) {
+                    started = true;
+                    sendNextSegment(containerId, t, direction);
+                }
+                if (t == target) {
                     cancel();
                     BukkitTask current = lidAnimations.get(containerId);
                     if (current != null && current.getTaskId() == getTaskId()) lidAnimations.remove(containerId);
                     return;
                 }
-                frame += open ? 1 : -1;
-                if (frame == 0) lidFrames.remove(containerId);
-                else lidFrames.put(containerId, frame);
-                for (UUID id : new UUID[]{unopenedDisplays.get(containerId), openedDisplays.get(containerId)}) {
-                    if (entity(id) instanceof ItemDisplay d) setFrame(d, frame);
-                }
+                t += direction;
+                if (t == 0) lidTicks.remove(containerId);
+                else lidTicks.put(containerId, t);
+                if (t != target && isKey(t)) sendNextSegment(containerId, t, direction);
             }
         };
         lidAnimations.put(containerId, runnable.runTaskTimer(plugin, 0L, 1L));
+    }
+
+    /** Envoie au client l'étape suivante, qu'il atteindra en interpolant pendant la bonne durée. */
+    private void sendNextSegment(String containerId, int from, int direction) {
+        int next = -1;
+        if (direction > 0) {
+            for (int k : LID_KEYS) if (k > from) { next = k; break; }
+        } else {
+            for (int i = LID_KEYS.length - 1; i >= 0; i--) if (LID_KEYS[i] < from) { next = LID_KEYS[i]; break; }
+        }
+        if (next < 0) return;
+        float angle = eased(next);
+        int duration = Math.abs(next - from);
+        for (ItemDisplay d : lids(containerId)) setLid(d, angle, duration);
+    }
+
+    private static boolean isKey(int t) {
+        for (int k : LID_KEYS) if (k == t) return true;
+        return false;
+    }
+
+    /** Ouverture du couvercle (0 à 1) après t ticks, avec la même courbe qu'en vanilla. */
+    private static float eased(int t) {
+        float x = 1f - (float) t / LID_TICKS;
+        return 1f - x * x * x;
+    }
+
+    /** Fait pivoter le couvercle autour de sa charnière (0 = fermé, 1 = ouvert à 90°). */
+    private void setLid(ItemDisplay d, float openness, int durationTicks) {
+        Transformation current = d.getTransformation();
+        Vector3f scale = current.getScale();
+        d.setInterpolationDelay(0);
+        d.setInterpolationDuration(durationTicks);
+        d.setTransformation(new Transformation(new Vector3f(),
+                new AxisAngle4f((float) (Math.PI / 2 * openness), 1f, 0f, 0f),
+                scale, new AxisAngle4f()));
     }
 
     /** Arrêt du plugin : referme instantanément tous les couvercles. */
     public void closeAllLids() {
         lidAnimations.values().forEach(BukkitTask::cancel);
         lidAnimations.clear();
-        for (String containerId : lidFrames.keySet()) {
-            for (UUID id : new UUID[]{unopenedDisplays.get(containerId), openedDisplays.get(containerId)}) {
-                if (entity(id) instanceof ItemDisplay d) setFrame(d, 0);
-            }
+        for (String containerId : lidTicks.keySet()) {
+            for (ItemDisplay d : lids(containerId)) setLid(d, 0f, 0);
         }
-        lidFrames.clear();
-    }
-
-    /** L'image est choisie par le pack via custom_model_data (0 = fermé). */
-    private static void setFrame(ItemDisplay display, int frame) {
-        ItemStack item = display.getItemStack();
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return;
-        CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
-        List<Float> floats = frame == 0 ? List.of() : List.of((float) frame);
-        if (cmd.getFloats().equals(floats)) return;
-        cmd.setFloats(floats);
-        meta.setCustomModelDataComponent(cmd);
-        item.setItemMeta(meta);
-        display.setItemStack(item);
+        lidTicks.clear();
     }
 
     // ------------------------------------------------------------------ état par joueur
@@ -383,17 +468,11 @@ public final class VisualManager {
         }
     }
 
-    /** Montre au joueur le bon modèle pour ce conteneur. */
+    /** Montre au joueur les bons modèles pour ce conteneur. */
     private void apply(Player player, String containerId) {
-        Entity unopened = entity(unopenedDisplays.get(containerId));
-        Entity opened = entity(openedDisplays.get(containerId));
-        if (isOpened(player.getUniqueId(), containerId)) {
-            if (unopened != null) player.hideEntity(plugin, unopened);
-            if (opened != null) player.showEntity(plugin, opened);
-        } else {
-            if (unopened != null) player.showEntity(plugin, unopened);
-            if (opened != null) player.hideEntity(plugin, opened);
-        }
+        boolean opened = isOpened(player.getUniqueId(), containerId);
+        for (Entity e : ofState(containerId, opened ? OPENED : UNOPENED)) player.showEntity(plugin, e);
+        for (Entity e : ofState(containerId, opened ? UNOPENED : OPENED)) player.hideEntity(plugin, e);
     }
 
     private static @Nullable Entity entity(@Nullable UUID id) {
@@ -406,5 +485,9 @@ public final class VisualManager {
 
     private @Nullable String state(Entity e) {
         return e.getPersistentDataContainer().get(plugin.keys().visualState, PersistentDataType.STRING);
+    }
+
+    private @Nullable String part(Entity e) {
+        return e.getPersistentDataContainer().getOrDefault(plugin.keys().visualPart, PersistentDataType.STRING, BODY);
     }
 }

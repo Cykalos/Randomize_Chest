@@ -1,0 +1,6 @@
+{
+  "parent": "randomize_chest:item/chest/lid_template",
+  "textures": {
+    "c": "randomize_chest:item/chest/loot_chest_opened"
+  }
+}

@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0] — 2026-10-22
+
+### 🇫🇷 Modifié
+- Animation du couvercle entièrement fluide : le coffre habillé est désormais en deux parties (corps + couvercle) et le couvercle pivote autour de sa charnière, animé directement par le jeu à chaque image. La courbe d'ouverture reste celle du couvercle vanilla.
+- Les textures de coffre gardent le même format (64×64 vanilla) et le même emplacement : aucune modification n'est nécessaire.
+- Les habillages et les modèles du pack déjà extrait sont mis à jour automatiquement ; vos textures `.png` ne sont pas touchées.
+
+### 🇬🇧 Changed
+- Fully smooth lid animation: the skinned chest now comes in two parts (body + lid) and the lid pivots around its hinge, animated by the game itself on every frame. The opening curve still matches the vanilla lid.
+- Chest textures keep the same format (vanilla 64×64) and location: no change is needed.
+- Visual skins and models in the already extracted pack are updated automatically; your `.png` textures are left untouched.
+
 ## [1.4.0] — 2026-10-22
 
 ### 🇫🇷 Ajouté

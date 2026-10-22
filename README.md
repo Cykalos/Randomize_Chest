@@ -91,7 +91,7 @@ voit `opened-item-model`. Deux joueurs devant le même coffre peuvent donc voir 
 - L'état est mis à jour dès l'ouverture, retrouvé à la reconnexion, remis à zéro par `/rchest reset`
   et par la régénération (`refill-hours`).
 - Les tonneaux sont gérés aussi, avec leurs propres modèles (`per-block`).
-- Le couvercle des coffres habillés s'ouvre et se referme avec une animation de 10 images, accompagnée des sons vanilla.
+- Le couvercle des coffres habillés s'ouvre et se referme de façon fluide, avec les sons vanilla.
 
 ### Pack de ressources inclus
 
@@ -199,7 +199,7 @@ Two players in front of the same chest can see two different textures.
 - The state updates as soon as the chest is opened, is restored on reconnect, and is reset by
   `/rchest reset` and by refills (`refill-hours`).
 - Barrels are supported too, with their own models (`per-block`).
-- The lid of skinned chests opens and closes with a 10-frame animation, along with the vanilla sounds.
+- The lid of skinned chests opens and closes smoothly, along with the vanilla sounds.
 
 ### Bundled resource pack
 

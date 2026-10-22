@@ -48,7 +48,8 @@ visual:
   enabled: false
   item-model: "randomize_chest:loot_chest"
   opened-item-model: "randomize_chest:loot_chest_opened"
-  # Modèles propres à un type de bloc (sinon ceux ci-dessus sont utilisés)
+  # Modèles propres à un type de bloc (sinon ceux ci-dessus sont utilisés).
+  # Pour les coffres, chaque modèle doit avoir son couvercle nommé <modèle>_lid.
   per-block:
     TRAPPED_CHEST:
       item-model: "randomize_chest:loot_trapped_chest"

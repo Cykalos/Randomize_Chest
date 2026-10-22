@@ -58,7 +58,7 @@ public final class ResourcePackService {
      * Révision des modèles du pack embarqué. Quand elle augmente, les fichiers .json / .mcmeta
      * extraits sont mis à jour ; les textures (.png) présentes ne sont jamais écrasées.
      */
-    private static final int PACK_REVISION = 3;
+    private static final int PACK_REVISION = 4;
     private static final String REVISION_FILE = ".randomize_chest_revision";
     /** Fichiers devenus inutiles, supprimés lors de la mise à jour vers la révision 2. */
     private static final List<String> OBSOLETE = List.of(
@@ -181,14 +181,18 @@ public final class ResourcePackService {
                 walk.filter(Files::isRegularFile).filter(ResourcePackService::isPackFile).sorted().forEach(files::add);
             }
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            java.util.Set<String> names = new java.util.HashSet<>();
+            for (Path file : files) names.add(root.relativize(file).toString().replace(File.separatorChar, '/'));
             try (ZipOutputStream zip = new ZipOutputStream(buffer)) {
                 for (Path file : files) {
                     String name = root.relativize(file).toString().replace(File.separatorChar, '/');
-                    ZipEntry entry = new ZipEntry(name);
-                    entry.setLastModifiedTime(FIXED_TIME);
-                    zip.putNextEntry(entry);
-                    Files.copy(file, zip);
-                    zip.closeEntry();
+                    putEntry(zip, name, file);
+                    // Les textures de coffre (format vanilla 64x64) servent aussi aux modèles du
+                    // corps et du couvercle, qui les lisent depuis textures/item/chest/
+                    if (name.startsWith(CHEST_TEXTURES) && name.endsWith(".png")) {
+                        String copy = ITEM_CHEST_TEXTURES + name.substring(CHEST_TEXTURES.length());
+                        if (!names.contains(copy)) putEntry(zip, copy, file);
+                    }
                 }
             }
             byte[] bytes = buffer.toByteArray();
@@ -198,6 +202,17 @@ public final class ResourcePackService {
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Création du pack de ressources impossible", e);
         }
+    }
+
+    private static final String CHEST_TEXTURES = "assets/randomize_chest/textures/entity/chest/";
+    private static final String ITEM_CHEST_TEXTURES = "assets/randomize_chest/textures/item/chest/";
+
+    private static void putEntry(ZipOutputStream zip, String name, Path file) throws IOException {
+        ZipEntry entry = new ZipEntry(name);
+        entry.setLastModifiedTime(FIXED_TIME);
+        zip.putNextEntry(entry);
+        Files.copy(file, zip);
+        zip.closeEntry();
     }
 
     private static boolean isPackFile(Path p) {

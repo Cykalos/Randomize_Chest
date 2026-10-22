@@ -16,7 +16,7 @@ Après avoir modifié une texture, faites `/rchest reload` : le pack est reconst
 
 ### Coffres et coffres piégés : textures au format vanilla
 
-Les coffres utilisent le **rendu du coffre vanilla** : leurs textures ont exactement le même format
+Les coffres reprennent la **forme du coffre vanilla**, en deux parties (corps + couvercle animé) : leurs textures ont exactement le même format
 que `textures/entity/chest/normal.png` de Minecraft (image **64×64** contenant le couvercle, le corps
 et la serrure). Partez de la texture vanilla et modifiez-la.
 
@@ -42,7 +42,7 @@ Les tonneaux utilisent un cube simple : une image **16×16** appliquée sur chaq
 - Une mise à jour du plugin n'écrase jamais vos fichiers `.png`.
 - Si un coffre apparaît tourné à l'envers, réglez `visual.yaw-offset: 180` dans `config.yml`.
 - Le `pack.mcmeta` fourni accepte les versions 26.1 et suivantes (`min_format` 84).
-- Le couvercle s'anime à l'ouverture (10 images) : chaque fichier `items/loot_*chest*.json` contient les 10 positions du couvercle, choisies par le plugin. Ne modifiez que les textures.
+- Le couvercle s'anime de façon fluide à l'ouverture et à la fermeture : il pivote autour de sa charnière, animé directement par le jeu. Les modèles `models/item/chest/` reproduisent la forme du coffre vanilla : ne modifiez que les textures.
 
 ---
 
@@ -58,7 +58,7 @@ After changing a texture, run `/rchest reload`: the pack is rebuilt and sent aga
 
 ### Chests and trapped chests: vanilla-format textures
 
-Chests use the **vanilla chest renderer**: their textures use exactly the same format as Minecraft's
+Chests reproduce the **vanilla chest shape**, in two parts (body + animated lid): their textures use exactly the same format as Minecraft's
 `textures/entity/chest/normal.png` (a **64×64** image holding the lid, body and latch).
 Start from the vanilla texture and edit it.
 
@@ -84,4 +84,4 @@ Barrels use a plain cube: one **16×16** image applied to every face.
 - A plugin update never overwrites your `.png` files.
 - If a chest shows up facing backwards, set `visual.yaw-offset: 180` in `config.yml`.
 - The provided `pack.mcmeta` accepts 26.1 and later (`min_format` 84).
-- The lid is animated when opened (10 frames): each `items/loot_*chest*.json` file holds the 10 lid positions picked by the plugin. Only edit the textures.
+- The lid opens and closes smoothly: it pivots around its hinge, animated by the game itself. The `models/item/chest/` models reproduce the vanilla chest shape: only edit the textures.

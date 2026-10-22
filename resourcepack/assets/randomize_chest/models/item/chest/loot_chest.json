@@ -1,0 +1,6 @@
+{
+  "parent": "randomize_chest:item/chest/body_template",
+  "textures": {
+    "c": "randomize_chest:item/chest/loot_chest"
+  }
+}
