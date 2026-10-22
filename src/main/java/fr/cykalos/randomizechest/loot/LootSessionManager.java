@@ -4,6 +4,9 @@ import fr.cykalos.randomizechest.RandomizeChestPlugin;
 import fr.cykalos.randomizechest.storage.LootDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Lidded;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -17,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 
 /** Ouverture, fermeture et sauvegarde des inventaires personnels. */
@@ -118,11 +122,17 @@ public final class LootSessionManager {
 
     // ------------------------------------------------------------------ couvercle
 
+    /**
+     * Comme en vanilla : effet au premier joueur qui ouvre, et au dernier qui referme.
+     * Sans habillage, le vrai couvercle s'anime (il joue lui-même le son).
+     * Avec l'habillage, le couvercle passerait à travers le modèle : on joue seulement le son.
+     */
     private void lidOpened(Location loc) {
-        // Avec l'habillage, le couvercle vanilla passerait à travers le modèle
-        if (plugin.settings().visualEnabled()) return;
         int count = lidViewers.merge(loc, 1, Integer::sum);
-        if (count == 1 && loc.isChunkLoaded() && loc.getBlock().getState(false) instanceof Lidded lidded) {
+        if (count != 1 || !loc.isChunkLoaded()) return;
+        if (plugin.settings().visualEnabled()) {
+            playSound(loc, true);
+        } else if (loc.getBlock().getState(false) instanceof Lidded lidded) {
             lidded.open();
         }
     }
@@ -130,9 +140,22 @@ public final class LootSessionManager {
     private void lidClosed(Location loc) {
         if (!lidViewers.containsKey(loc)) return;
         Integer count = lidViewers.computeIfPresent(loc, (l, c) -> c <= 1 ? null : c - 1);
-        if (count == null && loc.isChunkLoaded() && loc.getBlock().getState(false) instanceof Lidded lidded) {
+        if (count != null || !loc.isChunkLoaded()) return;
+        if (plugin.settings().visualEnabled()) {
+            playSound(loc, false);
+        } else if (loc.getBlock().getState(false) instanceof Lidded lidded) {
             lidded.close();
         }
+    }
+
+    /** Son d'ouverture / de fermeture vanilla (volume 0,5, hauteur 0,9 à 1,0). */
+    private void playSound(Location loc, boolean open) {
+        boolean barrel = loc.getBlock().getType() == Material.BARREL;
+        Sound sound = barrel
+                ? (open ? Sound.BLOCK_BARREL_OPEN : Sound.BLOCK_BARREL_CLOSE)
+                : (open ? Sound.BLOCK_CHEST_OPEN : Sound.BLOCK_CHEST_CLOSE);
+        float pitch = 0.9f + ThreadLocalRandom.current().nextFloat() * 0.1f;
+        loc.getWorld().playSound(loc.clone().add(0.5, 0.5, 0.5), sound, SoundCategory.BLOCKS, 0.5f, pitch);
     }
 
     // ------------------------------------------------------------------ suppression / réinitialisation

@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1] — 2026-10-22
+
+### 🇫🇷 Corrigé
+- Les sons d'ouverture et de fermeture des coffres et des tonneaux sont de nouveau joués quand l'habillage visuel est activé.
+
+### 🇬🇧 Fixed
+- Chest and barrel open/close sounds are played again while the visual skin is enabled.
+
 ## [1.3.0] — 2026-10-22
 
 ### 🇫🇷 Modifié
