@@ -59,15 +59,10 @@ public final class VisualManager {
     private static final String LID = "lid";
 
     /** À augmenter quand la position, l'orientation, la taille ou la découpe des habillages change. */
-    private static final int REVISION = 4;
+    private static final int REVISION = 5;
 
     /** Durée de l'ouverture en ticks (0,5 s, comme en vanilla). */
     private static final int LID_TICKS = 10;
-    /**
-     * Étapes envoyées au client, qui interpole entre elles. Une par tick, comme le couvercle
-     * vanilla qui tourne en même temps à l'intérieur : les deux restent synchronisés.
-     */
-    private static final int[] LID_KEYS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
     private final RandomizeChestPlugin plugin;
 
@@ -159,7 +154,7 @@ public final class VisualManager {
         }
         // Légèrement plus grand que le bloc pour le recouvrir sans scintillement. Le couvercle
         // l'est un peu plus, pour cacher le vrai couvercle qui s'ouvre en même temps à l'intérieur.
-        float scale = s.visualScale() * (LID.equals(part) ? 1.025f : 1.01f);
+        float scale = s.visualScale() * (LID.equals(part) ? 1.015f : 1.01f);
 
         Location spawn;
         float translateY = 0f;
@@ -331,47 +326,24 @@ public final class VisualManager {
         int target = open ? LID_TICKS : 0;
         int direction = open ? 1 : -1;
         BukkitRunnable runnable = new BukkitRunnable() {
-            private boolean started;
-
             @Override
             public void run() {
                 int t = lidTicks.getOrDefault(containerId, 0);
-                if (!started) {
-                    started = true;
-                    sendNextSegment(containerId, t, direction);
-                }
                 if (t == target) {
                     cancel();
                     BukkitTask current = lidAnimations.get(containerId);
                     if (current != null && current.getTaskId() == getTaskId()) lidAnimations.remove(containerId);
                     return;
                 }
-                t += direction;
-                if (t == 0) lidTicks.remove(containerId);
-                else lidTicks.put(containerId, t);
-                if (t != target && isKey(t)) sendNextSegment(containerId, t, direction);
+                // Une étape par tick, atteinte au tick suivant : exactement le rythme du couvercle
+                // vanilla, qui avance de 1/10 par tick. Le client lisse le mouvement entre deux ticks.
+                int next = t + direction;
+                for (ItemDisplay d : lids(containerId)) setLid(d, eased(next), 1);
+                if (next == 0) lidTicks.remove(containerId);
+                else lidTicks.put(containerId, next);
             }
         };
         lidAnimations.put(containerId, runnable.runTaskTimer(plugin, 0L, 1L));
-    }
-
-    /** Envoie au client l'étape suivante, qu'il atteindra en interpolant pendant la bonne durée. */
-    private void sendNextSegment(String containerId, int from, int direction) {
-        int next = -1;
-        if (direction > 0) {
-            for (int k : LID_KEYS) if (k > from) { next = k; break; }
-        } else {
-            for (int i = LID_KEYS.length - 1; i >= 0; i--) if (LID_KEYS[i] < from) { next = LID_KEYS[i]; break; }
-        }
-        if (next < 0) return;
-        float angle = eased(next);
-        int duration = Math.abs(next - from);
-        for (ItemDisplay d : lids(containerId)) setLid(d, angle, duration);
-    }
-
-    private static boolean isKey(int t) {
-        for (int k : LID_KEYS) if (k == t) return true;
-        return false;
     }
 
     /** Ouverture du couvercle (0 à 1) après t ticks, avec la même courbe qu'en vanilla. */

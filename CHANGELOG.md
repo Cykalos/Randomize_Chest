@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.2] — 2026-10-22
+
+### 🇫🇷 Corrigé
+- Le couvercle du modèle avait un tick d'avance sur le couvercle vanilla, à l'ouverture comme à la fermeture : les deux sont maintenant synchronisés.
+
+### 🇫🇷 Modifié
+- Couvercle du modèle légèrement réduit (+1,5 % au lieu de +2,5 % par rapport au bloc).
+
+### 🇬🇧 Fixed
+- The model's lid was one tick ahead of the vanilla lid when opening and closing: both are now in sync.
+
+### 🇬🇧 Changed
+- Slightly smaller model lid (+1.5% instead of +2.5% relative to the block).
+
 ## [1.5.1] — 2026-10-22
 
 ### 🇫🇷 Corrigé
